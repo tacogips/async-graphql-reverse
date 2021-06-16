@@ -1,4 +1,4 @@
-use async_graphql_reverse::parse_schema_file;
+use async_graphql_reverse::*;
 use clap::Clap;
 use env_logger;
 
@@ -21,6 +21,10 @@ fn setup_logger() {
 fn main() {
     setup_logger();
     let opts: Opts = Opts::parse();
+    let structured_schema = parse_schema_file(&opts.input_schema).unwrap();
 
-    parse_schema_file(&opts.input_schema).unwrap();
+    let config = RendererConfig {
+        custom_datasource_using: None,
+    };
+    output(&opts.output_dir, structured_schema, config).expect("error ")
 }

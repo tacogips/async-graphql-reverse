@@ -1,0 +1,22 @@
+[package]
+name = "simple"
+version = "0.1.0"
+authors = ["tacogips <me@tacogips.me>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+
+[lib]
+name = "simple"
+path = "lib.rs"
+
+[[bin]]
+name = "simple-bin"
+path = "main.rs"
+
+[dependencies]
+anyhow = "1.0"
+async-graphql = "2.9"
+structopt = "0.3"
+

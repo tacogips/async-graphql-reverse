@@ -1,0 +1,70 @@
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+type Query {
+  "me: Single-line comment"
+  me: Me!
+  active: Bool!
+}
+
+type Mutation {
+  createFriendMutation(
+    input: CreateFriendMutationInput!
+  ): CreateFriendMutationPayload
+}
+
+type Subscription {
+  badge: Int!
+}
+
+"""
+this is comment for objetc
+"""
+type CreateFriendMutationPayload
+  @model(queries: null, mutations: null, subscriptions: null) {
+  friend: Friend!
+}
+
+input CreateFriendMutationInput {
+  userId: ID!
+}
+
+scalar Url
+
+interface User {
+  id: ID!
+  name: String!
+}
+
+type Friend implements User {
+  id: ID!
+  name: String!
+}
+
+type FriendConnection {
+  totalCount: Int!
+  nodes: [Friend]!
+}
+
+type Me implements User {
+  id: ID!
+  name: String!
+  rank: Float!
+  email: String
+  age: Int
+  active: Bool
+  friends(first: Int): FriendConnection!
+  notifications: [Notification]
+  web: Url
+  search(text: String!): [SearchResult]
+}
+
+type Notification {
+  id: ID!
+  title: String!
+  friends(first: Int, num: Int): FriendConnection!
+}
+
+union SearchResult = Friend | Notification
