@@ -1,0 +1,3 @@
+[tasks.testrun]
+command = "cargo"
+args = ["run","--bin", "async-graphql-reverse","--","--input-schema","example/data/test_schema.json"]
