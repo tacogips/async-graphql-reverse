@@ -1,0 +1,16 @@
+[using]
+data_source = "use crate::datasource::DataSource"
+
+[[resolver]]
+target_type = "Query"
+target_field = "type"
+resolver_type = "method" ## "method" or "member"
+
+
+
+[[resolver]]
+target_type = "Friend"
+target_field = "name"
+resolver_type = "method"
+
+

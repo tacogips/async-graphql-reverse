@@ -11,6 +11,9 @@ use anyhow::Result;
 use heck::SnakeCase;
 use proc_macro2::{Ident, TokenStream};
 use quote::*;
+use std::collections::HashMap;
+use std::str::FromStr;
+use strum::*;
 
 pub struct FieldsInfo {
     pub members: Vec<TokenStream>,
@@ -39,6 +42,7 @@ pub fn fields_info(
     schema: &StructuredSchema,
     config: &RendererConfig,
     context: &RenderContext,
+    field_resolver: Option<&HashMap<String, String>>,
 ) -> Result<FieldsInfo> {
     fields.sort_by(sort_by_line_pos);
     let mut result = FieldsInfo::new();
@@ -47,7 +51,7 @@ pub fn fields_info(
             member,
             method,
             mut dependencies,
-        } = convert_field(field, schema, config, context)?;
+        } = convert_field(field, schema, config, context, field_resolver)?;
 
         if let Some(member) = member {
             result.members.push(member)
@@ -65,9 +69,20 @@ pub fn fields_info(
 fn convert_field(
     field: &parse::Field,
     schema: &StructuredSchema,
-    renderer_config: &RendererConfig,
+    _renderer_config: &RendererConfig,
     render_context: &RenderContext,
+    field_resolver: Option<&HashMap<String, String>>,
 ) -> Result<MemberAndMethod> {
+    if let Some(field_resolver) = field_resolver {
+        if let Some(resolver_setting) = resolver_setting_of_field(&field.name, &field_resolver) {
+            let resolver = match resolver_setting {
+                ResolverType::Method => resolver_with_datasource(field, schema, render_context),
+                ResolverType::Field => resolver_with_member(field, schema, render_context),
+            };
+            return resolver;
+        }
+    }
+
     if let parse::TypeDef::Object(object) = render_context.parent {
         //TODO(tacogips)  more customize if needed
         if schema.is_query(&object.name) {
@@ -82,6 +97,23 @@ fn convert_field(
     } else {
         resolver_with_datasource(field, schema, render_context)
     }
+}
+
+#[derive(Eq, PartialEq, Debug, EnumString)]
+enum ResolverType {
+    #[strum(serialize = "method")]
+    Method,
+    #[strum(serialize = "field")]
+    Field,
+}
+
+fn resolver_setting_of_field(
+    field_name: &str,
+    resolver_field_setting: &HashMap<String, String>,
+) -> Option<ResolverType> {
+    resolver_field_setting
+        .get(field_name)
+        .map(|setting| ResolverType::from_str(setting).unwrap())
 }
 
 /// default:
@@ -145,7 +177,7 @@ fn resolver_with_member(
 /// return resolver method
 ///```
 /// pub async field_name(&self, ctx: &Context<'_>,arg1:Arg1, arg2:Arg2) -> ResultType {
-///     ctx.data_unchecked::<DataSource>().#resolver_method_name (&self #arg_values)
+///     ctx.data_unchecked::<DataSource>().#resolver_method_name (&self #arg_values).await
 /// }
 ///
 ///```
@@ -199,7 +231,7 @@ fn resolver_with_datasource(
     let method = quote! {
         #field_rustdoc
         pub async fn #field_name(&self, ctx: &Context<'_> #arg_defs ) -> #typ {
-            ctx.data_unchecked::<DataSource>().#resolver_method_name (&self #arg_values)
+            ctx.data_unchecked::<DataSource>().#resolver_method_name (&self #arg_values).await
         }
     };
 

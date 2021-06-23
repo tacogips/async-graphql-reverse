@@ -1,8 +1,9 @@
 use lazy_static::lazy_static;
 use std::collections::HashSet;
 
-/// ref. https://doc.rust-lang.org/reference/keywords.html
 lazy_static! {
+
+    // ref. https://doc.rust-lang.org/reference/keywords.html
     pub static ref RUST_KEYWORDS: HashSet<&'static str> = {
         let mut s = HashSet::new();
         s.insert("as");

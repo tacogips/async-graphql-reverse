@@ -9,7 +9,7 @@ use super::RenderContext;
 use anyhow::Result;
 use proc_macro2::TokenStream;
 use quote::*;
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 use std::fs::{self, OpenOptions};
 use std::io::{BufWriter, Write};
 use std::path::PathBuf;
@@ -41,9 +41,15 @@ pub fn write_objects(
     let mut all_dependencies = HashSet::<String>::new();
     let mut object_defs = Vec::<String>::new();
 
+    let resolver_setting = render_config.resolver_setting();
+
     for each_obj in objects {
-        let (object_token, dependencies) =
-            object_token(each_obj, &structured_schema, render_config)?;
+        let (object_token, dependencies) = object_token(
+            each_obj,
+            &structured_schema,
+            render_config,
+            &resolver_setting,
+        )?;
 
         object_defs.push(object_token.to_string());
 
@@ -85,12 +91,15 @@ fn object_token(
     object: &Object,
     schema: &StructuredSchema,
     render_config: &RendererConfig,
+    resolver_setting: &HashMap<String, HashMap<String, String>>,
 ) -> Result<(TokenStream, Vec<TokenStream>)> {
     let object_name = format_ident!("{}", object.name);
 
     let context = RenderContext {
         parent: TypeDef::Object(object),
     };
+
+    let field_resolver = resolver_setting.get(&object.name);
 
     let FieldsInfo {
         members,
@@ -101,6 +110,7 @@ fn object_token(
         schema,
         render_config,
         &context,
+        field_resolver,
     )?;
 
     let members = separate_by_comma(members);

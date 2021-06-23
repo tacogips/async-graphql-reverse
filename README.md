@@ -1,3 +1,12 @@
+### Graphql Schema to async-graphql definition
+
+this repository is heavily inspired by https://github.com/atsuhiro/codegen-for-async-graphql
+
+### run example
+```
+cargo run --bin async-graphql-reverse -- --input-schema examples/simple/input/schema.graphql --output-dir examples/simple/output
+```
+
 
 ## Supported Features
 - [x] Object

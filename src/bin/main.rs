@@ -10,6 +10,9 @@ struct Opts {
     input_schema: String,
 
     #[clap(long, short)]
+    config: Option<String>,
+
+    #[clap(long, short)]
     output_dir: String,
 }
 
@@ -22,21 +25,22 @@ fn setup_logger() {
 fn main() {
     setup_logger();
     let opts: Opts = Opts::parse();
-    match parse_schema_file(&opts.input_schema) {
-        Ok(structured_schema) => {
-            let config = RendererConfig {
-                custom_datasource_using: None,
-            };
-            match output(&opts.output_dir, structured_schema, config) {
-                Ok(()) => {
-                    log::info!("files outputed in {}", opts.output_dir);
-                }
 
-                Err(e) => {
-                    log::error!("{}", e);
-                }
+    let config = match opts.config {
+        Some(config_path) => RendererConfig::load(&config_path).unwrap(),
+        None => RendererConfig::default(),
+    };
+
+    match parse_schema_file(&opts.input_schema) {
+        Ok(structured_schema) => match output(&opts.output_dir, structured_schema, config) {
+            Ok(()) => {
+                log::info!("files outputed in {}", opts.output_dir);
             }
-        }
+
+            Err(e) => {
+                log::error!("{}", e);
+            }
+        },
         Err(e) => {
             log::error!("{}", e);
         }

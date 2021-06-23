@@ -59,7 +59,7 @@ pub fn write_enums(output_dir: &str, structured_schema: &StructuredSchema) -> Re
     Ok(true)
 }
 
-fn enum_token(enm: &Enum, schema: &StructuredSchema) -> Result<TokenStream> {
+fn enum_token(enm: &Enum, _schema: &StructuredSchema) -> Result<TokenStream> {
     let enum_name = format_ident!("{}", enm.name.to_camel_case());
 
     let enums_members: Vec<TokenStream> = enm
@@ -67,7 +67,7 @@ fn enum_token(enm: &Enum, schema: &StructuredSchema) -> Result<TokenStream> {
         .iter()
         .map(|each_enum| {
             //each_enum.value_name.parse::<TokenStream>().unwrap()}
-            let each_enum = &format_ident!("{}", each_enum.value_name.to_camel_case());
+            let each_enum = format_ident!("{}", each_enum.value_name.to_camel_case());
             quote! {
                 #each_enum
             }

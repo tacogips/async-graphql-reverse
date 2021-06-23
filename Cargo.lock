@@ -105,9 +105,11 @@ dependencies = [
  "paste",
  "proc-macro2",
  "quote",
+ "serde",
  "structopt",
  "strum",
  "syn",
+ "toml",
 ]
 
 [[package]]

@@ -12,7 +12,7 @@ type Query {
   "me: Single-line comment"
   me: Me!
   active: Boolean!
-  type: Boolean
+  type: String
 }
 
 type Mutation {
