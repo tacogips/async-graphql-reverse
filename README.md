@@ -7,6 +7,11 @@ this repository is heavily inspired by https://github.com/atsuhiro/codegen-for-a
 cargo run --bin async-graphql-reverse -- --input-schema examples/simple/input/schema.graphql --output-dir examples/simple/output
 ```
 
+### install
+```
+cargo install --git https://github.com/tacogips/async-graphql-reverse --branch master async-graphql-reverse
+```
+
 
 ## Supported Features
 - [x] Object
