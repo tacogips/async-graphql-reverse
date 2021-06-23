@@ -268,7 +268,7 @@ pub enum PrimitiveKind {
     Float,
     #[strum(serialize = "String")]
     Str,
-    #[strum(serialize = "Bool")]
+    #[strum(serialize = "Boolean")]
     Boolean,
     #[strum(serialize = "ID")]
     ID,

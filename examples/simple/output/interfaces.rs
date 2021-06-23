@@ -5,6 +5,6 @@ use async_graphql::*;
 #[graphql(field(name = "id", type = "ID"), field(name = "name", type = "String"))]
 #[derive(Debug)]
 pub enum User {
-    Me(Me),
     Friend(Friend),
+    Me(Me),
 }

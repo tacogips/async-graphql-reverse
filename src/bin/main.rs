@@ -1,6 +1,7 @@
 use async_graphql_reverse::*;
 use clap::Clap;
 use env_logger;
+use log;
 
 #[derive(Clap)]
 #[clap(version = "0.0.1", author = "tacogips")]
@@ -21,10 +22,23 @@ fn setup_logger() {
 fn main() {
     setup_logger();
     let opts: Opts = Opts::parse();
-    let structured_schema = parse_schema_file(&opts.input_schema).unwrap();
+    match parse_schema_file(&opts.input_schema) {
+        Ok(structured_schema) => {
+            let config = RendererConfig {
+                custom_datasource_using: None,
+            };
+            match output(&opts.output_dir, structured_schema, config) {
+                Ok(()) => {
+                    log::info!("files outputed in {}", opts.output_dir);
+                }
 
-    let config = RendererConfig {
-        custom_datasource_using: None,
-    };
-    output(&opts.output_dir, structured_schema, config).expect("error ")
+                Err(e) => {
+                    log::error!("{}", e);
+                }
+            }
+        }
+        Err(e) => {
+            log::error!("{}", e);
+        }
+    }
 }

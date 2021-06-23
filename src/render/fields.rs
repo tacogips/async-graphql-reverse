@@ -2,13 +2,14 @@ use super::super::parse::{self, *};
 use super::argument::*;
 use super::config::RendererConfig;
 use super::dependencies::*;
+use super::keywords::*;
 use super::sorter::sort_by_line_pos;
 use super::tokens::*;
 use super::typ::*;
 use super::RenderContext;
 use anyhow::Result;
 use heck::SnakeCase;
-use proc_macro2::TokenStream;
+use proc_macro2::{Ident, TokenStream};
 use quote::*;
 
 pub struct FieldsInfo {
@@ -111,7 +112,7 @@ fn resolver_with_member(
     schema: &StructuredSchema,
     context: &RenderContext,
 ) -> Result<MemberAndMethod> {
-    let name = format_ident!("{}", field.name_string().to_snake_case());
+    let name = field_or_member_name(field);
     let typ = value_type_def_token(&field.typ, &schema)?;
     let member = Some(quote! { pub #name :#typ });
 
@@ -177,7 +178,7 @@ fn resolver_with_datasource(
         (quote! {,#arg_defs}, quote! {,#arg_values})
     };
 
-    let field_name = format_ident!("{}", field.name_string().to_snake_case());
+    let field_name = field_or_member_name(field);
     let resolver_method_name = format_ident!(
         "{}",
         format!("{}_{}", context.parent_name(), field.name_string()).to_snake_case()
@@ -193,10 +194,11 @@ fn resolver_with_datasource(
         None => quote! {},
     };
 
+    let typ = value_type_def_token(&field.typ, &schema)?;
     //TODO() fix Option<Vec<SearchResult>>
     let method = quote! {
         #field_rustdoc
-        pub async fn #field_name(&self, ctx: &Context<'_> #arg_defs ) -> Option<Vec<SearchResult>> {
+        pub async fn #field_name(&self, ctx: &Context<'_> #arg_defs ) -> #typ {
             ctx.data_unchecked::<DataSource>().#resolver_method_name (&self #arg_values)
         }
     };
@@ -213,4 +215,13 @@ fn resolver_with_datasource(
         method: Some(method),
         dependencies,
     })
+}
+
+fn field_or_member_name(field: &parse::Field) -> Ident {
+    let field_name: String = field.name_string().to_snake_case().into();
+    if RUST_KEYWORDS.contains(&field_name.as_ref()) {
+        format_ident!("r#{}", field_name)
+    } else {
+        format_ident!("{}", field_name)
+    }
 }

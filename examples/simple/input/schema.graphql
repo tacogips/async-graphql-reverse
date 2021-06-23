@@ -3,10 +3,16 @@ schema {
   mutation: Mutation
 }
 
+enum Status {
+  REGISTERED
+  EMAIL_VERIFIED
+}
+
 type Query {
   "me: Single-line comment"
   me: Me!
-  active: Bool!
+  active: Boolean!
+  type: Boolean
 }
 
 type Mutation {
@@ -54,11 +60,12 @@ type Me implements User {
   rank: Float!
   email: String
   age: Int
-  active: Bool
+  active: Boolean
   friends(first: Int): FriendConnection!
   notifications: [Notification]
   web: Url
   search(text: String!): [SearchResult]
+  status: Status
 }
 
 type Notification {

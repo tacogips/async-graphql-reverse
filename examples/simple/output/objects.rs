@@ -1,3 +1,4 @@
+use super::enums::Status;
 use super::input_objects::CreateFriendMutationInput;
 use super::scalars::Url;
 use super::unions::SearchResult;
@@ -8,11 +9,14 @@ pub struct Query {}
 #[Object]
 impl Query {
     #[doc = "me: Single-line comment"]
-    pub async fn me(&self, ctx: &Context<'_>) -> Option<Vec<SearchResult>> {
+    pub async fn me(&self, ctx: &Context<'_>) -> Me {
         ctx.data_unchecked::<DataSource>().query_me(&self)
     }
-    pub async fn active(&self, ctx: &Context<'_>) -> Option<Vec<SearchResult>> {
+    pub async fn active(&self, ctx: &Context<'_>) -> bool {
         ctx.data_unchecked::<DataSource>().query_active(&self)
+    }
+    pub async fn r#type(&self, ctx: &Context<'_>) -> Option<bool> {
+        ctx.data_unchecked::<DataSource>().query_type(&self)
     }
 }
 #[derive(Debug)]
@@ -23,7 +27,7 @@ impl Mutation {
         &self,
         ctx: &Context<'_>,
         input: CreateFriendMutationInput,
-    ) -> Option<Vec<SearchResult>> {
+    ) -> Option<CreateFriendMutationPayload> {
         ctx.data_unchecked::<DataSource>()
             .mutation_create_friend_mutation(&self, input)
     }
@@ -42,7 +46,7 @@ impl Subscription {
 pub struct CreateFriendMutationPayload {}
 #[Object]
 impl CreateFriendMutationPayload {
-    pub async fn friend(&self, ctx: &Context<'_>) -> Option<Vec<SearchResult>> {
+    pub async fn friend(&self, ctx: &Context<'_>) -> Friend {
         ctx.data_unchecked::<DataSource>()
             .create_friend_mutation_payload_friend(&self)
     }
@@ -70,7 +74,7 @@ impl FriendConnection {
     pub async fn total_count(&self) -> i64 {
         self.total_count.clone()
     }
-    pub async fn nodes(&self, ctx: &Context<'_>) -> Option<Vec<SearchResult>> {
+    pub async fn nodes(&self, ctx: &Context<'_>) -> Vec<Option<Friend>> {
         ctx.data_unchecked::<DataSource>()
             .friend_connection_nodes(&self)
     }
@@ -104,21 +108,20 @@ impl Me {
     pub async fn active(&self) -> Option<bool> {
         self.active.clone()
     }
-    pub async fn friends(
-        &self,
-        ctx: &Context<'_>,
-        first: Option<i64>,
-    ) -> Option<Vec<SearchResult>> {
+    pub async fn friends(&self, ctx: &Context<'_>, first: Option<i64>) -> FriendConnection {
         ctx.data_unchecked::<DataSource>().me_friends(&self, first)
     }
-    pub async fn notifications(&self, ctx: &Context<'_>) -> Option<Vec<SearchResult>> {
+    pub async fn notifications(&self, ctx: &Context<'_>) -> Vec<Option<Notification>> {
         ctx.data_unchecked::<DataSource>().me_notifications(&self)
     }
-    pub async fn web(&self, ctx: &Context<'_>) -> Option<Vec<SearchResult>> {
+    pub async fn web(&self, ctx: &Context<'_>) -> Option<Url> {
         ctx.data_unchecked::<DataSource>().me_web(&self)
     }
-    pub async fn search(&self, ctx: &Context<'_>, text: String) -> Option<Vec<SearchResult>> {
+    pub async fn search(&self, ctx: &Context<'_>, text: String) -> Vec<Option<SearchResult>> {
         ctx.data_unchecked::<DataSource>().me_search(&self, text)
+    }
+    pub async fn status(&self, ctx: &Context<'_>) -> Option<Status> {
+        ctx.data_unchecked::<DataSource>().me_status(&self)
     }
 }
 #[derive(Debug)]
@@ -139,7 +142,7 @@ impl Notification {
         ctx: &Context<'_>,
         first: Option<i64>,
         num: Option<i64>,
-    ) -> Option<Vec<SearchResult>> {
+    ) -> FriendConnection {
         ctx.data_unchecked::<DataSource>()
             .notification_friends(&self, first, num)
     }

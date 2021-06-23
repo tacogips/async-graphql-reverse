@@ -1,11 +1,12 @@
 use super::super::parse::{self, *};
 use super::dependencies::*;
+use super::keywords::*;
 use super::sorter::sort_by_line_pos;
 use super::typ::*;
 use super::RenderContext;
 use anyhow::Result;
 use heck::SnakeCase;
-use proc_macro2::TokenStream;
+use proc_macro2::{Ident, TokenStream};
 use quote::*;
 //use syn::*;
 
@@ -52,7 +53,7 @@ fn convert_input_field(
     schema: &StructuredSchema,
     render_context: &RenderContext,
 ) -> Result<InputMember> {
-    let name = format_ident!("{}", field.name_string().to_snake_case());
+    let name = input_field_name(field);
     let typ = value_type_def_token(&field.typ, &schema)?;
     let member = quote! { pub #name :#typ };
 
@@ -62,4 +63,13 @@ fn convert_input_field(
         member,
         dependencies,
     })
+}
+
+fn input_field_name(field: &parse::InputField) -> Ident {
+    let field_name: String = field.name_string().to_snake_case().into();
+    if RUST_KEYWORDS.contains(&field_name.as_ref()) {
+        format_ident!("r#{}", field_name)
+    } else {
+        format_ident!("{}", field_name)
+    }
 }

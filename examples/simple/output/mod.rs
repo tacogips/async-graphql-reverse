@@ -7,8 +7,10 @@ use unions::*;
 mod scalars;
 use scalars::*;
 mod interfaces;
-use async_graphql::*;
 use interfaces::*;
+mod enums;
+use async_graphql::*;
+use enums::*;
 pub fn schema() -> Schema<Query, Mutation, EmptySubscription> {
     Schema::new(Query {}, Mutation {}, EmptySubscription)
 }

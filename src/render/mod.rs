@@ -1,11 +1,13 @@
 mod argument;
 mod config;
 mod dependencies;
+mod enums;
 mod fields;
 mod files;
 mod input_fields;
 mod input_objects;
 mod interfaces;
+mod keywords;
 mod objects;
 mod scalars;
 mod sorter;
@@ -47,6 +49,7 @@ struct ModInfo {
     union_written: bool,
     scalar_written: bool,
     interface_written: bool,
+    enum_written: bool,
 }
 
 pub fn output(
@@ -62,6 +65,7 @@ pub fn output(
     let union_written = unions::write_unions(output_dir, &structured_schema)?;
     let scalar_written = scalars::write_scalars(output_dir, &structured_schema)?;
     let interface_written = interfaces::write_interfaces(output_dir, &structured_schema, &config)?;
+    let enum_written = enums::write_enums(output_dir, &structured_schema)?;
 
     let log = ModInfo {
         objects_written,
@@ -69,6 +73,7 @@ pub fn output(
         union_written,
         scalar_written,
         interface_written,
+        enum_written,
     };
 
     mod_file(output_dir, log, &structured_schema)?;
@@ -121,6 +126,10 @@ fn mod_file(output_dir: &str, info: ModInfo, schema: &StructuredSchema) -> Resul
                 .to_string()
                 .as_bytes(),
         )?;
+    }
+
+    if info.enum_written {
+        dest_file.write(quote! { mod enums; use enums::*; }.to_string().as_bytes())?;
     }
 
     dest_file.write(quote! { use async_graphql::*; }.to_string().as_bytes())?;

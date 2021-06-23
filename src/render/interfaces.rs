@@ -112,6 +112,8 @@ fn interface_token(
 
     let mut interface_memer_tokens = Vec::<TokenStream>::new();
     if let Some(impl_types) = interface_type_and_impl_types.get(&interface.name) {
+        let mut impl_types = impl_types.clone();
+        impl_types.sort();
         for member in impl_types {
             let mut interface_member = convert_interface_member(&member, schema, &context)?;
             interface_memer_tokens.push(interface_member.member);
