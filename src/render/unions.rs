@@ -1,4 +1,5 @@
 use super::super::parse::*;
+use super::comment::*;
 use super::dependencies::*;
 use super::files::{fmt_file, pathbuf_to_str};
 use super::sorter::sort_by_line_pos;
@@ -53,6 +54,7 @@ pub fn write_unions(output_dir: &str, structured_schema: &StructuredSchema) -> R
         .expect(format!("failed to open file : {}", file_path_str).as_ref());
     let mut dest_file = BufWriter::new(dest_file);
 
+    dest_file.write(FILE_HEADER_COMMENT.as_bytes())?;
     let header = quote! {
         use async_graphql::*;
     };

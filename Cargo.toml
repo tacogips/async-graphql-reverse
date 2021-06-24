@@ -1,6 +1,6 @@
 [package]
 name = "async-graphql-reverse"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["tacogips <me@tacogips.me>"]
 edition = "2018"
 

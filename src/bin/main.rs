@@ -4,7 +4,7 @@ use env_logger;
 use log;
 
 #[derive(Clap)]
-#[clap(version = "0.0.1", author = "tacogips")]
+#[clap(version = "0.1.2", author = "tacogips")]
 struct Opts {
     #[clap(long, short)]
     input_schema: String,

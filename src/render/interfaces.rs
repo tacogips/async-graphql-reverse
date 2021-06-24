@@ -1,4 +1,5 @@
 use super::super::parse::*;
+use super::comment::*;
 use super::config::RendererConfig;
 use super::dependencies::*;
 use super::files::{fmt_file, pathbuf_to_str};
@@ -67,6 +68,7 @@ pub fn write_interfaces(
         .expect(format!("failed to open file : {}", file_path_str).as_ref());
     let mut dest_file = BufWriter::new(dest_file);
 
+    dest_file.write(FILE_HEADER_COMMENT.as_bytes())?;
     let header = quote! {
         use async_graphql::*;
     };
@@ -87,7 +89,7 @@ pub fn write_interfaces(
 fn interface_token(
     interface: &Interface,
     schema: &StructuredSchema,
-    render_config: &RendererConfig,
+    _render_config: &RendererConfig,
     interface_type_and_impl_types: &HashMap<String, Vec<String>>,
 ) -> Result<(TokenStream, Vec<TokenStream>)> {
     let interface_name = format_ident!("{}", interface.name);

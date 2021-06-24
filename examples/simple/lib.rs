@@ -1,2 +1,2 @@
 mod datasource;
-mod output;
+pub mod output;

@@ -1,4 +1,5 @@
 mod argument;
+mod comment;
 mod config;
 mod dependencies;
 mod enums;
@@ -18,13 +19,13 @@ mod unions;
 use super::parse;
 use super::parse::*;
 use anyhow::{anyhow, Result};
+use comment::*;
 pub use config::*;
 use files::{fmt_file, pathbuf_to_str};
 use quote::*;
 use std::fs::{self, OpenOptions};
 use std::io::{BufWriter, Write};
-use std::path::Path;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 pub struct RenderContext<'a> {
     parent: parse::TypeDef<'a>,
@@ -92,9 +93,10 @@ fn mod_file(output_dir: &str, info: ModInfo, schema: &StructuredSchema) -> Resul
         .expect(format!("failed to open file : {}", file_path_str).as_ref());
     let mut dest_file = BufWriter::new(dest_file);
 
+    dest_file.write(FILE_HEADER_COMMENT.as_bytes())?;
     if info.objects_written {
         dest_file.write(
-            quote! { mod objects; use objects::*; }
+            quote! { mod objects; pub use objects::*; }
                 .to_string()
                 .as_bytes(),
         )?;
@@ -102,19 +104,23 @@ fn mod_file(output_dir: &str, info: ModInfo, schema: &StructuredSchema) -> Resul
 
     if info.input_objects_written {
         dest_file.write(
-            quote! { mod input_objects; use input_objects::*; }
+            quote! { mod input_objects; pub use input_objects::*; }
                 .to_string()
                 .as_bytes(),
         )?;
     }
 
     if info.union_written {
-        dest_file.write(quote! { mod unions; use unions::*; }.to_string().as_bytes())?;
+        dest_file.write(
+            quote! { mod unions; pub use unions::*; }
+                .to_string()
+                .as_bytes(),
+        )?;
     }
 
     if info.scalar_written {
         dest_file.write(
-            quote! { mod scalars; use scalars::*; }
+            quote! { mod scalars; pub use scalars::*; }
                 .to_string()
                 .as_bytes(),
         )?;
@@ -122,14 +128,18 @@ fn mod_file(output_dir: &str, info: ModInfo, schema: &StructuredSchema) -> Resul
 
     if info.interface_written {
         dest_file.write(
-            quote! { mod interfaces; use interfaces::*; }
+            quote! { mod interfaces; pub use interfaces::*; }
                 .to_string()
                 .as_bytes(),
         )?;
     }
 
     if info.enum_written {
-        dest_file.write(quote! { mod enums; use enums::*; }.to_string().as_bytes())?;
+        dest_file.write(
+            quote! { mod enums; pub use enums::*; }
+                .to_string()
+                .as_bytes(),
+        )?;
     }
 
     dest_file.write(quote! { use async_graphql::*; }.to_string().as_bytes())?;

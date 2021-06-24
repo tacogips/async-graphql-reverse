@@ -1,4 +1,5 @@
 use super::super::parse::*;
+use super::comment::*;
 use super::files::{fmt_file, pathbuf_to_str};
 use super::sorter::sort_by_line_pos;
 use anyhow::Result;
@@ -42,6 +43,7 @@ pub fn write_scalars(output_dir: &str, structured_schema: &StructuredSchema) -> 
         .expect(format!("failed to open file : {}", file_path_str).as_ref());
     let mut dest_file = BufWriter::new(dest_file);
 
+    dest_file.write(FILE_HEADER_COMMENT.as_bytes())?;
     let header = quote! {
         use async_graphql::*;
     };
@@ -57,7 +59,7 @@ pub fn write_scalars(output_dir: &str, structured_schema: &StructuredSchema) -> 
     Ok(true)
 }
 
-fn scalar_token(scalar: &Scalar, schema: &StructuredSchema) -> Result<TokenStream> {
+fn scalar_token(scalar: &Scalar, _schema: &StructuredSchema) -> Result<TokenStream> {
     let scalar_name = format_ident!("{}", scalar.name);
 
     let scalar_def = quote! {

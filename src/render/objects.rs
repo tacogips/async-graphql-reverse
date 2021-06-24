@@ -1,4 +1,5 @@
 use super::super::parse::*;
+use super::comment::*;
 use super::config::RendererConfig;
 use super::dependencies::*;
 use super::fields::*;
@@ -69,6 +70,7 @@ pub fn write_objects(
         .parse()
         .unwrap();
 
+    dest_file.write(FILE_HEADER_COMMENT.as_bytes())?;
     let header = quote! {
         use async_graphql::*;
         #datasource_using
