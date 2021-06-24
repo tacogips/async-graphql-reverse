@@ -14,7 +14,7 @@ pub struct ResolverSetting {
 #[derive(Deserialize, Debug)]
 pub struct RendererConfig {
     pub using: HashMap<String, String>,
-    pub resolver: Vec<ResolverSetting>,
+    pub resolver: Option<Vec<ResolverSetting>>,
 }
 
 impl RendererConfig {
@@ -26,20 +26,25 @@ impl RendererConfig {
     }
 
     pub fn resolver_setting(&self) -> HashMap<String, HashMap<String, String>> {
-        if self.resolver.is_empty() {
-            return HashMap::new();
-        } else {
-            let mut result = HashMap::<String, HashMap<String, String>>::new();
-            for resolver in self.resolver.iter() {
-                let field_and_resolver_type = result
-                    .entry(resolver.target_type.to_string())
-                    .or_insert(HashMap::<String, String>::new());
-                field_and_resolver_type.insert(
-                    resolver.target_field.to_string(),
-                    resolver.resolver_type.to_string(),
-                );
+        match self.resolver.as_ref() {
+            None => return HashMap::new(),
+            Some(resolver) => {
+                if resolver.is_empty() {
+                    return HashMap::new();
+                } else {
+                    let mut result = HashMap::<String, HashMap<String, String>>::new();
+                    for each_resolver in resolver.iter() {
+                        let field_and_resolver_type = result
+                            .entry(each_resolver.target_type.to_string())
+                            .or_insert(HashMap::<String, String>::new());
+                        field_and_resolver_type.insert(
+                            each_resolver.target_field.to_string(),
+                            each_resolver.resolver_type.to_string(),
+                        );
+                    }
+                    result
+                }
             }
-            result
         }
     }
 
@@ -54,7 +59,7 @@ impl Default for RendererConfig {
     fn default() -> Self {
         Self {
             using: HashMap::new(),
-            resolver: vec![],
+            resolver: None,
         }
     }
 }
