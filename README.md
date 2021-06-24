@@ -1,4 +1,4 @@
-### Graphql Schema to async-graphql definition
+### Graphql Schema definition to rust code for async-graphql
 
 this repository is heavily inspired by https://github.com/atsuhiro/codegen-for-async-graphql
 
@@ -12,7 +12,6 @@ cargo run --bin async-graphql-reverse -- --input-schema examples/simple/input/sc
 cargo install --git https://github.com/tacogips/async-graphql-reverse --branch master async-graphql-reverse
 ```
 
-
 ## Supported Features
 - [x] Object
 - [x] InputObject
@@ -21,6 +20,9 @@ cargo install --git https://github.com/tacogips/async-graphql-reverse --branch m
 - [x] Union
 - [ ] Subscriber
 - [ ] Description
-	- [x] resolver description
-	- [ ] object description
-	- [ ] input object description
+	- [ ] Object description
+	- [x] Object Resolver description
+	- [ ] Input object description
+	- [ ] Enum description
+	- [ ] Union description
+	- [ ] Interface description
