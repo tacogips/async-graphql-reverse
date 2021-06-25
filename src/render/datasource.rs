@@ -1,22 +1,14 @@
 use super::super::parse::{self, *};
-use super::comment::*;
 use super::config::RendererConfig;
-use super::dependencies::*;
 use super::fields::*;
 use super::fields::{field_is_method_or_member, ResolverType};
-use super::files::{fmt_file, pathbuf_to_str};
 use super::sorter::sort_by_line_pos;
-use super::tokens::*;
 use super::typ::*;
 use super::RenderContext;
 use anyhow::Result;
 use heck::SnakeCase;
 use proc_macro2::TokenStream;
 use quote::*;
-use std::collections::{HashMap, HashSet};
-use std::fs::{self, OpenOptions};
-use std::io::{BufWriter, Write};
-use std::path::PathBuf;
 
 pub fn empty_datasource_methods(
     schema: &StructuredSchema,

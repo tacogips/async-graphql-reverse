@@ -1,6 +1,6 @@
 use super::super::parse::*;
 use super::comment::*;
-use super::config::RendererConfig;
+use super::config::{CustomResolvers, RendererConfig};
 use super::dependencies::*;
 use super::fields::*;
 use super::files::{fmt_file, pathbuf_to_str};
@@ -46,6 +46,8 @@ pub fn write_objects(
 
     let resolver_setting = render_config.resolver_setting();
 
+    let custom_resolvers = render_config.custom_resolvers();
+
     for each_obj in objects {
         let (object_token, dependencies) = object_token(
             each_obj,
@@ -53,6 +55,7 @@ pub fn write_objects(
             render_config,
             &resolver_setting,
             &custom_member_types,
+            &custom_resolvers,
         )?;
 
         object_defs.push(object_token.to_string());
@@ -98,6 +101,7 @@ fn object_token(
     render_config: &RendererConfig,
     resolver_setting: &HashMap<String, HashMap<String, String>>,
     custom_member_types: &HashSet<String>,
+    custom_resolvers: &HashMap<String, CustomResolvers>,
 ) -> Result<(TokenStream, Vec<TokenStream>)> {
     let object_name = format_ident!("{}", object.name);
 
@@ -109,8 +113,8 @@ fn object_token(
 
     let FieldsInfo {
         members,
-        methods,
-        dependencies,
+        mut methods,
+        mut dependencies,
     } = fields_info(
         object.fields.iter().collect(),
         schema,
@@ -119,6 +123,23 @@ fn object_token(
         field_resolver,
         &custom_member_types,
     )?;
+
+    if let Some(custom_resolvers) = custom_resolvers.get(&object.name) {
+        let mut bodies: Vec<TokenStream> = custom_resolvers
+            .bodies
+            .iter()
+            .map(|e| e.parse::<TokenStream>().unwrap())
+            .collect();
+
+        let mut usings: Vec<TokenStream> = custom_resolvers
+            .using
+            .iter()
+            .map(|e| e.parse::<TokenStream>().unwrap())
+            .collect();
+
+        methods.append(&mut bodies);
+        dependencies.append(&mut usings);
+    }
 
     let members = separate_by_comma(members);
     let methods = separate_by_space(methods);

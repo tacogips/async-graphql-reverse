@@ -5,6 +5,7 @@ default_data_source_fetch_method = "ctx.data_unchecked::<DataSource>()"
 [using]
 data_source = "use crate::datasource::DataSource"
 
+
 [[resolver]]
 target_type = "Query"
 target_field = "type"
@@ -16,3 +17,13 @@ target_field = "name"
 resolver_type = "method"
 
 
+[[custom_resolver]]
+target_type ="Query"
+body ="""
+    pub async fn custom_resolver(&self, ctx: &Context<'_>) -> Option<String> {
+        ctx.data_unchecked::<DataSource>()
+            .query_custom_resolver(&ctx, self)
+            .await
+    }
+"""
+#using = "use std::fs"

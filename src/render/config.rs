@@ -4,6 +4,18 @@ use std::collections::{HashMap, HashSet};
 use std::fs;
 use toml;
 
+pub struct CustomResolvers {
+    pub using: Vec<String>,
+    pub bodies: Vec<String>,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct CustomResolver {
+    pub target_type: String,
+    pub body: String,
+    pub using: Option<String>,
+}
+
 #[derive(Deserialize, Debug)]
 pub struct ResolverSetting {
     pub target_type: String,
@@ -17,6 +29,7 @@ pub struct RendererConfig {
     pub default_data_source_fetch_method: Option<String>,
     pub custom_member_types: Option<Vec<String>>,
     pub resolver: Option<Vec<ResolverSetting>>,
+    pub custom_resolver: Option<Vec<CustomResolver>>,
 }
 
 impl RendererConfig {
@@ -37,6 +50,7 @@ impl RendererConfig {
         }
     }
 
+    /// if a type contained this set, the field that has the type supposed to be a member instead of resolver method.
     pub fn custom_member_types(&self) -> HashSet<String> {
         match self.custom_member_types.as_ref() {
             None => HashSet::<String>::new(),
@@ -67,6 +81,34 @@ impl RendererConfig {
         }
     }
 
+    pub fn custom_resolvers(&self) -> HashMap<String, CustomResolvers> {
+        match self.custom_resolver.as_ref() {
+            None => return HashMap::new(),
+            Some(custom_resolver) => {
+                if custom_resolver.is_empty() {
+                    return HashMap::new();
+                } else {
+                    let mut result = HashMap::<String, CustomResolvers>::new();
+                    for custom_resolver in custom_resolver.iter() {
+                        let custom_resolvers_field = result
+                            .entry(custom_resolver.target_type.to_string())
+                            .or_insert(CustomResolvers {
+                                using: vec![],
+                                bodies: vec![],
+                            });
+                        custom_resolvers_field
+                            .bodies
+                            .push(custom_resolver.body.clone());
+                        if let Some(using) = custom_resolver.using.as_ref() {
+                            custom_resolvers_field.using.push(using.clone());
+                        }
+                    }
+                    result
+                }
+            }
+        }
+    }
+
     pub fn load(file_path: &str) -> Result<RendererConfig> {
         let toml_str: String = fs::read_to_string(file_path)?;
         let config: RendererConfig = toml::from_str(&toml_str).map_err(|e| anyhow!("{}", e))?;
@@ -81,6 +123,7 @@ impl Default for RendererConfig {
             custom_member_types: None,
             default_data_source_fetch_method: None,
             resolver: None,
+            custom_resolver: None,
         }
     }
 }

@@ -77,4 +77,8 @@ impl DataSource {
     ) -> FriendConnection {
         unimplemented!("resolver {} is unimpemented yet", "notification_friends")
     }
+
+    pub async fn query_custom_resolver(&self, ctx: &Context<'_>, object: &Query) -> Option<String> {
+        unimplemented!()
+    }
 }

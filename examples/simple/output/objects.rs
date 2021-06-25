@@ -26,6 +26,11 @@ impl Query {
             .query_type(&ctx, self)
             .await
     }
+    pub async fn custom_resolver(&self, ctx: &Context<'_>) -> Option<String> {
+        ctx.data_unchecked::<DataSource>()
+            .query_custom_resolver(&ctx, self)
+            .await
+    }
 }
 #[derive(Debug)]
 pub struct Mutation {}

@@ -101,7 +101,7 @@ pub fn field_is_method_or_member(
     field: &parse::Field,
     schema: &StructuredSchema,
     render_context: &RenderContext,
-    renderer_config: &RendererConfig,
+    _renderer_config: &RendererConfig,
     field_resolver: &Option<&HashMap<String, String>>,
     custom_member_types: &HashSet<String>,
 ) -> Result<ResolverType> {

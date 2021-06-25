@@ -3,7 +3,7 @@ use clap::Clap;
 use env_logger;
 
 #[derive(Clap)]
-#[clap(version = "0.1.7", author = "tacogips")]
+#[clap(version = "0.1.8", author = "tacogips")]
 struct Opts {
     #[clap(long, short)]
     input_schema: String,
