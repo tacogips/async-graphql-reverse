@@ -1,5 +1,6 @@
-
 default_data_source_fetch_method = "ctx.data_unchecked::<DataSource>()"
+
+# custom_member_types=["CustomPrimitiveType"]
 
 [using]
 data_source = "use crate::datasource::DataSource"

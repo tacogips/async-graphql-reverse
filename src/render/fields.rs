@@ -11,7 +11,7 @@ use anyhow::Result;
 use heck::SnakeCase;
 use proc_macro2::{Ident, TokenStream};
 use quote::*;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::str::FromStr;
 use strum::*;
 
@@ -43,6 +43,7 @@ pub fn fields_info(
     config: &RendererConfig,
     context: &RenderContext,
     field_resolver: Option<&HashMap<String, String>>,
+    custom_member_types: &HashSet<String>,
 ) -> Result<FieldsInfo> {
     fields.sort_by(sort_by_line_pos);
     let mut result = FieldsInfo::new();
@@ -51,7 +52,14 @@ pub fn fields_info(
             member,
             method,
             mut dependencies,
-        } = convert_field(field, schema, context, config, field_resolver)?;
+        } = convert_field(
+            field,
+            schema,
+            context,
+            config,
+            field_resolver,
+            custom_member_types,
+        )?;
 
         if let Some(member) = member {
             result.members.push(member)
@@ -72,6 +80,7 @@ fn convert_field(
     render_context: &RenderContext,
     renderer_config: &RendererConfig,
     field_resolver: Option<&HashMap<String, String>>,
+    custom_member_types: &HashSet<String>,
 ) -> Result<MemberAndMethod> {
     if let Some(field_resolver) = field_resolver {
         if let Some(resolver_setting) = resolver_setting_of_field(&field.name, &field_resolver) {
@@ -94,7 +103,7 @@ fn convert_field(
         }
     }
 
-    if field_is_a_member(field, schema)? {
+    if field_is_a_member(field, schema, custom_member_types)? {
         resolver_with_member(field, schema, render_context)
     } else {
         resolver_with_datasource(field, schema, render_context, renderer_config)
@@ -121,16 +130,30 @@ fn resolver_setting_of_field(
 /// default:
 ///  primitive type with no arguments => member
 ///  others         => method
-fn field_is_a_member(field: &parse::Field, schema: &StructuredSchema) -> Result<bool> {
-    match source_type_def(&field.typ, schema)? {
-        parse::TypeDef::Primitive(_) => {
-            if field.arguments.is_empty() {
-                Ok(true)
-            } else {
-                Ok(false)
-            }
+fn field_is_a_member(
+    field: &parse::Field,
+    schema: &StructuredSchema,
+    custom_member_types: &HashSet<String>,
+) -> Result<bool> {
+    let source_type = source_type_def(&field.typ, schema)?;
+    if let parse::TypeDef::Primitive(_) = source_type {
+        if field.arguments.is_empty() {
+            Ok(true)
+        } else {
+            Ok(false)
         }
-        _ => Ok(false),
+    } else if let parse::TypeDef::Scalar(_) = source_type {
+        if field.arguments.is_empty() {
+            Ok(true)
+        } else {
+            Ok(false)
+        }
+    } else {
+        if custom_member_types.contains(&source_type.name()) {
+            Ok(true)
+        } else {
+            Ok(false)
+        }
     }
 }
 

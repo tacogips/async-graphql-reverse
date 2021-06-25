@@ -42,6 +42,8 @@ pub fn write_objects(
     let mut all_dependencies = HashSet::<String>::new();
     let mut object_defs = Vec::<String>::new();
 
+    let custom_member_types = render_config.custom_member_types();
+
     let resolver_setting = render_config.resolver_setting();
 
     for each_obj in objects {
@@ -50,6 +52,7 @@ pub fn write_objects(
             &structured_schema,
             render_config,
             &resolver_setting,
+            &custom_member_types,
         )?;
 
         object_defs.push(object_token.to_string());
@@ -94,6 +97,7 @@ fn object_token(
     schema: &StructuredSchema,
     render_config: &RendererConfig,
     resolver_setting: &HashMap<String, HashMap<String, String>>,
+    custom_member_types: &HashSet<String>,
 ) -> Result<(TokenStream, Vec<TokenStream>)> {
     let object_name = format_ident!("{}", object.name);
 
@@ -113,6 +117,7 @@ fn object_token(
         render_config,
         &context,
         field_resolver,
+        &custom_member_types,
     )?;
 
     let members = separate_by_comma(members);

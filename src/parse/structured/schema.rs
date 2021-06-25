@@ -258,6 +258,18 @@ impl<'a> TypeDef<'a> {
     is! {Scalar}
     is! {Union}
     is! {Interface}
+
+    pub fn name(&self) -> String {
+        match self {
+            TypeDef::Primitive(v) => v.rust_type(),
+            TypeDef::Object(v) => v.name.to_string(),
+            TypeDef::Enum(v) => v.name.to_string(),
+            TypeDef::InputObject(v) => v.name.to_string(),
+            TypeDef::Scalar(v) => v.name.to_string(),
+            TypeDef::Union(v) => v.name.to_string(),
+            TypeDef::Interface(v) => v.name.to_string(),
+        }
+    }
 }
 
 #[derive(AsRefStr, EnumString, Debug)]

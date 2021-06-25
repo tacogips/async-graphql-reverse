@@ -1,6 +1,6 @@
 use anyhow::{anyhow, Result};
 use serde::Deserialize;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::fs;
 use toml;
 
@@ -15,7 +15,7 @@ pub struct ResolverSetting {
 pub struct RendererConfig {
     pub using: Option<HashMap<String, String>>,
     pub default_data_source_fetch_method: Option<String>,
-
+    pub custom_member_types: Option<Vec<String>>,
     pub resolver: Option<Vec<ResolverSetting>>,
 }
 
@@ -34,6 +34,13 @@ impl RendererConfig {
         match self.default_data_source_fetch_method.as_ref() {
             Some(v) => v.to_string(),
             None => "ctx.data_unchecked::<DataSource>()".to_string(),
+        }
+    }
+
+    pub fn custom_member_types(&self) -> HashSet<String> {
+        match self.custom_member_types.as_ref() {
+            None => HashSet::<String>::new(),
+            Some(member_types) => member_types.iter().map(|v| v.to_string()).collect(),
         }
     }
 
@@ -71,6 +78,7 @@ impl Default for RendererConfig {
     fn default() -> Self {
         Self {
             using: None,
+            custom_member_types: None,
             default_data_source_fetch_method: None,
             resolver: None,
         }

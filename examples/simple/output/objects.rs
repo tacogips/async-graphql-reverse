@@ -99,6 +99,7 @@ pub struct Me {
     pub email: Option<String>,
     pub age: Option<i64>,
     pub active: Option<bool>,
+    pub web: Option<Url>,
 }
 #[Object]
 impl Me {
@@ -130,8 +131,8 @@ impl Me {
             .me_notifications(&ctx, self)
             .await
     }
-    pub async fn web(&self, ctx: &Context<'_>) -> Option<Url> {
-        ctx.data_unchecked::<DataSource>().me_web(&ctx, self).await
+    pub async fn web(&self) -> Option<Url> {
+        self.web.clone()
     }
     pub async fn search(&self, ctx: &Context<'_>, text: String) -> Vec<Option<SearchResult>> {
         ctx.data_unchecked::<DataSource>()
