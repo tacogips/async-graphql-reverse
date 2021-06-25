@@ -237,7 +237,7 @@ fn resolver_with_datasource(
     let method = quote! {
         #field_rustdoc
         pub async fn #field_name(&self, ctx: &Context<'_> #arg_defs ) -> #typ {
-            #data_source_fetch_method.#resolver_method_name (self #arg_values).await
+            #data_source_fetch_method.#resolver_method_name (&ctx, self #arg_values).await
         }
     };
 

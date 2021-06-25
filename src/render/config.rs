@@ -14,7 +14,8 @@ pub struct ResolverSetting {
 #[derive(Deserialize, Debug)]
 pub struct RendererConfig {
     pub using: Option<HashMap<String, String>>,
-    pub data_source_fetch_method: Option<String>,
+    pub default_data_source_fetch_method: Option<String>,
+
     pub resolver: Option<Vec<ResolverSetting>>,
 }
 
@@ -30,7 +31,7 @@ impl RendererConfig {
     }
 
     pub fn data_source_fetch_method_from_ctx(&self) -> String {
-        match self.data_source_fetch_method.as_ref() {
+        match self.default_data_source_fetch_method.as_ref() {
             Some(v) => v.to_string(),
             None => "ctx.data_unchecked::<DataSource>()".to_string(),
         }
@@ -70,7 +71,7 @@ impl Default for RendererConfig {
     fn default() -> Self {
         Self {
             using: None,
-            data_source_fetch_method: None,
+            default_data_source_fetch_method: None,
             resolver: None,
         }
     }

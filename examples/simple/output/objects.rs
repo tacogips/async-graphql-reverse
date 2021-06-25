@@ -12,13 +12,19 @@ pub struct Query {}
 impl Query {
     #[doc = "me: Single-line comment"]
     pub async fn me(&self, ctx: &Context<'_>) -> Me {
-        ctx.data_unchecked::<DataSource>().query_me(self).await
+        ctx.data_unchecked::<DataSource>()
+            .query_me(&ctx, self)
+            .await
     }
     pub async fn active(&self, ctx: &Context<'_>) -> bool {
-        ctx.data_unchecked::<DataSource>().query_active(self).await
+        ctx.data_unchecked::<DataSource>()
+            .query_active(&ctx, self)
+            .await
     }
     pub async fn r#type(&self, ctx: &Context<'_>) -> Option<String> {
-        ctx.data_unchecked::<DataSource>().query_type(self).await
+        ctx.data_unchecked::<DataSource>()
+            .query_type(&ctx, self)
+            .await
     }
 }
 #[derive(Debug)]
@@ -31,7 +37,7 @@ impl Mutation {
         input: CreateFriendMutationInput,
     ) -> Option<CreateFriendMutationPayload> {
         ctx.data_unchecked::<DataSource>()
-            .mutation_create_friend_mutation(self, input)
+            .mutation_create_friend_mutation(&ctx, self, input)
             .await
     }
 }
@@ -51,7 +57,7 @@ pub struct CreateFriendMutationPayload {}
 impl CreateFriendMutationPayload {
     pub async fn friend(&self, ctx: &Context<'_>) -> Friend {
         ctx.data_unchecked::<DataSource>()
-            .create_friend_mutation_payload_friend(self)
+            .create_friend_mutation_payload_friend(&ctx, self)
             .await
     }
 }
@@ -65,7 +71,9 @@ impl Friend {
         self.id.clone()
     }
     pub async fn name(&self, ctx: &Context<'_>) -> String {
-        ctx.data_unchecked::<DataSource>().friend_name(self).await
+        ctx.data_unchecked::<DataSource>()
+            .friend_name(&ctx, self)
+            .await
     }
 }
 #[derive(Debug)]
@@ -79,7 +87,7 @@ impl FriendConnection {
     }
     pub async fn nodes(&self, ctx: &Context<'_>) -> Vec<Option<Friend>> {
         ctx.data_unchecked::<DataSource>()
-            .friend_connection_nodes(self)
+            .friend_connection_nodes(&ctx, self)
             .await
     }
 }
@@ -114,24 +122,26 @@ impl Me {
     }
     pub async fn friends(&self, ctx: &Context<'_>, first: Option<i64>) -> FriendConnection {
         ctx.data_unchecked::<DataSource>()
-            .me_friends(self, first)
+            .me_friends(&ctx, self, first)
             .await
     }
     pub async fn notifications(&self, ctx: &Context<'_>) -> Vec<Option<Notification>> {
         ctx.data_unchecked::<DataSource>()
-            .me_notifications(self)
+            .me_notifications(&ctx, self)
             .await
     }
     pub async fn web(&self, ctx: &Context<'_>) -> Option<Url> {
-        ctx.data_unchecked::<DataSource>().me_web(self).await
+        ctx.data_unchecked::<DataSource>().me_web(&ctx, self).await
     }
     pub async fn search(&self, ctx: &Context<'_>, text: String) -> Vec<Option<SearchResult>> {
         ctx.data_unchecked::<DataSource>()
-            .me_search(self, text)
+            .me_search(&ctx, self, text)
             .await
     }
     pub async fn status(&self, ctx: &Context<'_>) -> Option<Status> {
-        ctx.data_unchecked::<DataSource>().me_status(self).await
+        ctx.data_unchecked::<DataSource>()
+            .me_status(&ctx, self)
+            .await
     }
 }
 #[derive(Debug)]
@@ -154,7 +164,7 @@ impl Notification {
         num: Option<i64>,
     ) -> FriendConnection {
         ctx.data_unchecked::<DataSource>()
-            .notification_friends(self, first, num)
+            .notification_friends(&ctx, self, first, num)
             .await
     }
 }

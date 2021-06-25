@@ -1,9 +1,8 @@
 
-data_source_fetch_method = "ctx.data_unchecked::<DataSource>()"
+default_data_source_fetch_method = "ctx.data_unchecked::<DataSource>()"
 
 [using]
 data_source = "use crate::datasource::DataSource"
-
 
 [[resolver]]
 target_type = "Query"
