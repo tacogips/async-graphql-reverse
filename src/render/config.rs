@@ -13,16 +13,27 @@ pub struct ResolverSetting {
 
 #[derive(Deserialize, Debug)]
 pub struct RendererConfig {
-    pub using: HashMap<String, String>,
+    pub using: Option<HashMap<String, String>>,
+    pub data_source_fetch_method: Option<String>,
     pub resolver: Option<Vec<ResolverSetting>>,
 }
 
 impl RendererConfig {
     pub fn data_source_using(&self) -> String {
-        self.using
-            .get("data_source")
-            .map(|v| v.to_string())
-            .unwrap_or_else(|| "use crate::datasource::DataSource".to_string())
+        match self.using.as_ref() {
+            Some(using) => using
+                .get("data_source")
+                .map(|v| v.to_string())
+                .unwrap_or_else(|| "use crate::datasource::DataSource".to_string()),
+            None => "use crate::datasource::DataSource".to_string(),
+        }
+    }
+
+    pub fn data_source_fetch_method_from_ctx(&self) -> String {
+        match self.data_source_fetch_method.as_ref() {
+            Some(v) => v.to_string(),
+            None => "ctx.data_unchecked::<DataSource>()".to_string(),
+        }
     }
 
     pub fn resolver_setting(&self) -> HashMap<String, HashMap<String, String>> {
@@ -58,7 +69,8 @@ impl RendererConfig {
 impl Default for RendererConfig {
     fn default() -> Self {
         Self {
-            using: HashMap::new(),
+            using: None,
+            data_source_fetch_method: None,
             resolver: None,
         }
     }

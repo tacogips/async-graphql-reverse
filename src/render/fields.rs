@@ -51,7 +51,7 @@ pub fn fields_info(
             member,
             method,
             mut dependencies,
-        } = convert_field(field, schema, config, context, field_resolver)?;
+        } = convert_field(field, schema, context, config, field_resolver)?;
 
         if let Some(member) = member {
             result.members.push(member)
@@ -69,14 +69,16 @@ pub fn fields_info(
 fn convert_field(
     field: &parse::Field,
     schema: &StructuredSchema,
-    _renderer_config: &RendererConfig,
     render_context: &RenderContext,
+    renderer_config: &RendererConfig,
     field_resolver: Option<&HashMap<String, String>>,
 ) -> Result<MemberAndMethod> {
     if let Some(field_resolver) = field_resolver {
         if let Some(resolver_setting) = resolver_setting_of_field(&field.name, &field_resolver) {
             let resolver = match resolver_setting {
-                ResolverType::Method => resolver_with_datasource(field, schema, render_context),
+                ResolverType::Method => {
+                    resolver_with_datasource(field, schema, render_context, renderer_config)
+                }
                 ResolverType::Field => resolver_with_member(field, schema, render_context),
             };
             return resolver;
@@ -84,18 +86,18 @@ fn convert_field(
     }
 
     if let parse::TypeDef::Object(object) = render_context.parent {
-        //TODO(tacogips)  more customize if needed
+        //TODO(tacogips) more customize if needed
         if schema.is_query(&object.name) {
-            return resolver_with_datasource(field, schema, render_context);
+            return resolver_with_datasource(field, schema, render_context, renderer_config);
         } else if schema.is_mutation(&object.name) {
-            return resolver_with_datasource(field, schema, render_context);
+            return resolver_with_datasource(field, schema, render_context, renderer_config);
         }
     }
 
     if field_is_a_member(field, schema)? {
         resolver_with_member(field, schema, render_context)
     } else {
-        resolver_with_datasource(field, schema, render_context)
+        resolver_with_datasource(field, schema, render_context, renderer_config)
     }
 }
 
@@ -185,6 +187,7 @@ fn resolver_with_datasource(
     field: &parse::Field,
     schema: &StructuredSchema,
     context: &RenderContext,
+    renderer_config: &RendererConfig,
 ) -> Result<MemberAndMethod> {
     let (arg_defs, arg_values) = if field.arguments.is_empty() {
         (quote! {}, quote! {})
@@ -227,11 +230,14 @@ fn resolver_with_datasource(
     };
 
     let typ = value_type_def_token(&field.typ, &schema)?;
-    //TODO() fix Option<Vec<SearchResult>>
+    let data_source_fetch_method: TokenStream = renderer_config
+        .data_source_fetch_method_from_ctx()
+        .parse()
+        .unwrap();
     let method = quote! {
         #field_rustdoc
         pub async fn #field_name(&self, ctx: &Context<'_> #arg_defs ) -> #typ {
-            ctx.data_unchecked::<DataSource>().#resolver_method_name (self #arg_values).await
+            #data_source_fetch_method.#resolver_method_name (self #arg_values).await
         }
     };
 

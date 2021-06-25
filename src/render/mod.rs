@@ -162,8 +162,8 @@ fn mod_file(output_dir: &str, info: ModInfo, schema: &StructuredSchema) -> Resul
         .unwrap_or_else(|| quote! {EmptyMutation});
 
     let schema_token = quote! {
-        pub fn schema() -> Schema<#query_token, #mutation_token, EmptySubscription> {
-            Schema::new(#query_token{},#mutation_token{}, EmptySubscription)
+        pub fn schema_builder() -> SchemaBuilder<#query_token, #mutation_token, EmptySubscription> {
+            Schema::build(#query_token{},#mutation_token{}, EmptySubscription)
         }
     };
 

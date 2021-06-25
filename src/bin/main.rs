@@ -1,10 +1,9 @@
 use async_graphql_reverse::*;
 use clap::Clap;
 use env_logger;
-use log;
 
 #[derive(Clap)]
-#[clap(version = "0.1.2", author = "tacogips")]
+#[clap(version = "0.1.4", author = "tacogips")]
 struct Opts {
     #[clap(long, short)]
     input_schema: String,
@@ -27,22 +26,28 @@ fn main() {
     let opts: Opts = Opts::parse();
 
     let config = match opts.config {
-        Some(config_path) => RendererConfig::load(&config_path).unwrap(),
+        Some(config_path) => match RendererConfig::load(&config_path) {
+            Ok(config) => config,
+            Err(e) => {
+                println!("failed to load config toml file:{}", e);
+                std::process::exit(1);
+            }
+        },
         None => RendererConfig::default(),
     };
 
     match parse_schema_file(&opts.input_schema) {
         Ok(structured_schema) => match output(&opts.output_dir, structured_schema, config) {
             Ok(()) => {
-                log::info!("files outputed in {}", opts.output_dir);
+                println!("files outputed in {}", opts.output_dir);
             }
 
             Err(e) => {
-                log::error!("{}", e);
+                println!("{}", e);
             }
         },
         Err(e) => {
-            log::error!("{}", e);
+            println!("{}", e);
         }
     }
 }
