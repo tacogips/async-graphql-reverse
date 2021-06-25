@@ -1,6 +1,7 @@
 mod argument;
 mod comment;
 mod config;
+mod datasource;
 mod dependencies;
 mod enums;
 mod fields;
@@ -53,7 +54,17 @@ struct ModInfo {
     enum_written: bool,
 }
 
-pub fn output(
+pub fn output_datasource(
+    output_dir: &str,
+    structured_schema: StructuredSchema,
+    config: RendererConfig,
+) -> Result<()> {
+    setup_output_dir(output_dir)?;
+    datasource_mod_file(output_dir, &structured_schema, &config)?;
+    Ok(())
+}
+
+pub fn output_schema(
     output_dir: &str,
     structured_schema: StructuredSchema,
     config: RendererConfig,
@@ -77,15 +88,19 @@ pub fn output(
         enum_written,
     };
 
-    mod_file(output_dir, log, &structured_schema)?;
+    schema_mod_file(output_dir, log, &structured_schema)?;
 
     Ok(())
 }
 
-fn mod_file(output_dir: &str, info: ModInfo, schema: &StructuredSchema) -> Result<()> {
+fn schema_mod_file(output_dir: &str, info: ModInfo, schema: &StructuredSchema) -> Result<()> {
     let mut output_file = PathBuf::from(output_dir);
     output_file.push("mod.rs");
+    if output_file.exists() {
+        fs::remove_file(&output_file)?;
+    }
     let file_path_str = pathbuf_to_str(&output_file);
+
     let dest_file = OpenOptions::new()
         .write(true)
         .create(true)
@@ -185,5 +200,49 @@ pub fn setup_output_dir(output_dir: &str) -> Result<()> {
     } else {
         fs::create_dir_all(output_dir)?;
     }
+    Ok(())
+}
+
+fn datasource_mod_file(
+    output_dir: &str,
+    schema: &StructuredSchema,
+    render_config: &RendererConfig,
+) -> Result<()> {
+    let mut output_file = PathBuf::from(output_dir);
+    output_file.push("mod.rs");
+    if output_file.exists() {
+        fs::remove_file(&output_file)?;
+    }
+
+    let file_path_str = pathbuf_to_str(&output_file);
+    let dest_file = OpenOptions::new()
+        .write(true)
+        .create(true)
+        .open(output_file.as_path())
+        .expect(format!("failed to open file : {}", file_path_str).as_ref());
+    let mut dest_file = BufWriter::new(dest_file);
+
+    let header = quote! {
+         use async_graphql::*;
+    };
+    dest_file.write(header.to_string().as_bytes())?;
+
+    let methods = datasource::empty_datasource_methods(schema, render_config)?;
+    let methods = tokens::separate_by_space(methods);
+
+    let datasource = quote! {
+        pub struct DataSource{}
+
+        impl  DataSource{
+            #methods
+        }
+    };
+
+    dest_file.write(datasource.to_string().as_bytes())?;
+
+    dest_file.flush()?;
+
+    fmt_file(file_path_str)?;
+
     Ok(())
 }

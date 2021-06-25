@@ -82,36 +82,53 @@ fn convert_field(
     field_resolver: Option<&HashMap<String, String>>,
     custom_member_types: &HashSet<String>,
 ) -> Result<MemberAndMethod> {
+    match field_is_method_or_member(
+        &field,
+        &schema,
+        &render_context,
+        &renderer_config,
+        &field_resolver,
+        &custom_member_types,
+    )? {
+        ResolverType::Method => {
+            resolver_with_datasource(field, schema, render_context, renderer_config)
+        }
+        ResolverType::Field => resolver_with_member(field, schema, render_context),
+    }
+}
+
+pub fn field_is_method_or_member(
+    field: &parse::Field,
+    schema: &StructuredSchema,
+    render_context: &RenderContext,
+    renderer_config: &RendererConfig,
+    field_resolver: &Option<&HashMap<String, String>>,
+    custom_member_types: &HashSet<String>,
+) -> Result<ResolverType> {
     if let Some(field_resolver) = field_resolver {
-        if let Some(resolver_setting) = resolver_setting_of_field(&field.name, &field_resolver) {
-            let resolver = match resolver_setting {
-                ResolverType::Method => {
-                    resolver_with_datasource(field, schema, render_context, renderer_config)
-                }
-                ResolverType::Field => resolver_with_member(field, schema, render_context),
-            };
-            return resolver;
+        if let Some(method_type) = resolver_setting_of_field(&field.name, &field_resolver) {
+            return Ok(method_type);
         }
     }
 
     if let parse::TypeDef::Object(object) = render_context.parent {
         //TODO(tacogips) more customize if needed
         if schema.is_query(&object.name) {
-            return resolver_with_datasource(field, schema, render_context, renderer_config);
+            return Ok(ResolverType::Method);
         } else if schema.is_mutation(&object.name) {
-            return resolver_with_datasource(field, schema, render_context, renderer_config);
+            return Ok(ResolverType::Method);
         }
     }
 
     if field_is_a_member(field, schema, custom_member_types)? {
-        resolver_with_member(field, schema, render_context)
+        Ok(ResolverType::Field)
     } else {
-        resolver_with_datasource(field, schema, render_context, renderer_config)
+        Ok(ResolverType::Method)
     }
 }
 
 #[derive(Eq, PartialEq, Debug, EnumString)]
-enum ResolverType {
+pub enum ResolverType {
     #[strum(serialize = "method")]
     Method,
     #[strum(serialize = "field")]
@@ -199,21 +216,12 @@ fn resolver_with_member(
     })
 }
 
-/// return resolver method
-///```
-/// pub async field_name(&self, ctx: &Context<'_>,arg1:Arg1, arg2:Arg2) -> ResultType {
-///     ctx.data_unchecked::<DataSource>().#resolver_method_name (&self #arg_values).await
-/// }
-///
-///```
-fn resolver_with_datasource(
+pub fn args_defs_and_values(
     field: &parse::Field,
     schema: &StructuredSchema,
-    context: &RenderContext,
-    renderer_config: &RendererConfig,
-) -> Result<MemberAndMethod> {
-    let (arg_defs, arg_values) = if field.arguments.is_empty() {
-        (quote! {}, quote! {})
+) -> Result<(TokenStream, TokenStream)> {
+    if field.arguments.is_empty() {
+        Ok((quote! {}, quote! {}))
     } else {
         let arg_defs = field
             .arguments
@@ -233,8 +241,24 @@ fn resolver_with_datasource(
 
         let arg_values = separate_by_comma(arg_values);
 
-        (quote! {,#arg_defs}, quote! {,#arg_values})
-    };
+        Ok((quote! {,#arg_defs}, quote! {,#arg_values}))
+    }
+}
+
+/// return resolver method
+///```
+/// pub async field_name(&self, ctx: &Context<'_>,arg1:Arg1, arg2:Arg2) -> ResultType {
+///     ctx.data_unchecked::<DataSource>().#resolver_method_name (&self #arg_values).await
+/// }
+///
+///```
+fn resolver_with_datasource(
+    field: &parse::Field,
+    schema: &StructuredSchema,
+    context: &RenderContext,
+    renderer_config: &RendererConfig,
+) -> Result<MemberAndMethod> {
+    let (arg_defs, arg_values) = args_defs_and_values(&field, &schema)?;
 
     let field_name = field_or_member_name(field);
     let resolver_method_name = format_ident!(
