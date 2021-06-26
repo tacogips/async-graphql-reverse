@@ -277,6 +277,7 @@ fn resolver_with_datasource(
     };
 
     let typ = value_type_def_token(&field.typ, &schema)?;
+    let typ: TokenStream = quote! {Result<#typ>};
     let data_source_fetch_method: TokenStream = renderer_config
         .data_source_fetch_method_from_ctx()
         .parse()

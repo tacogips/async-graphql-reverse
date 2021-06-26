@@ -60,6 +60,7 @@ fn datasouerce_token_method(
     let resolver_method_name = format_ident!("{}", resolver_name);
 
     let typ = value_type_def_token(&field.typ, &schema)?;
+    let typ: TokenStream = quote! {Result<#typ>};
 
     let (arg_defs, _) = args_defs_and_values(field, &schema)?;
 

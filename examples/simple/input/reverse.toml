@@ -20,7 +20,7 @@ resolver_type = "method"
 [[custom_resolver]]
 target_type ="Query"
 body ="""
-    pub async fn custom_resolver(&self, ctx: &Context<'_>) -> Option<String> {
+    pub async fn custom_resolver(&self, ctx: &Context<'_>) -> Result<Option<String>> {
         ctx.data_unchecked::<DataSource>()
             .query_custom_resolver(&ctx, self)
             .await

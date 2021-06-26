@@ -16,6 +16,8 @@ async-graphql-reverse --input-schema examples/simple/input/schema.graphql --outp
 
 
 ## Supported Features
+
+- [x] Object
 - [x] Object
 - [x] InputObject
 - [x] Enum
@@ -29,3 +31,4 @@ async-graphql-reverse --input-schema examples/simple/input/schema.graphql --outp
 	- [ ] Enum description
 	- [ ] Union description
 	- [ ] Interface description
+- [ ] Default value

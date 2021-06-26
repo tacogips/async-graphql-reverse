@@ -2,13 +2,13 @@ use super::output::*;
 use async_graphql::*;
 pub struct DataSource {}
 impl DataSource {
-    pub async fn query_me(&self, ctx: &Context<'_>, object: &Query) -> Me {
+    pub async fn query_me(&self, ctx: &Context<'_>, object: &Query) -> Result<Me> {
         unimplemented!("resolver {} is unimpemented yet", "query_me")
     }
-    pub async fn query_active(&self, ctx: &Context<'_>, object: &Query) -> bool {
+    pub async fn query_active(&self, ctx: &Context<'_>, object: &Query) -> Result<bool> {
         unimplemented!("resolver {} is unimpemented yet", "query_active")
     }
-    pub async fn query_type(&self, ctx: &Context<'_>, object: &Query) -> Option<String> {
+    pub async fn query_type(&self, ctx: &Context<'_>, object: &Query) -> Result<Option<String>> {
         unimplemented!("resolver {} is unimpemented yet", "query_type")
     }
     pub async fn mutation_create_friend_mutation(
@@ -16,7 +16,7 @@ impl DataSource {
         ctx: &Context<'_>,
         object: &Mutation,
         input: CreateFriendMutationInput,
-    ) -> Option<CreateFriendMutationPayload> {
+    ) -> Result<Option<CreateFriendMutationPayload>> {
         unimplemented!(
             "resolver {} is unimpemented yet",
             "mutation_create_friend_mutation"
@@ -26,20 +26,20 @@ impl DataSource {
         &self,
         ctx: &Context<'_>,
         object: &CreateFriendMutationPayload,
-    ) -> Friend {
+    ) -> Result<Friend> {
         unimplemented!(
             "resolver {} is unimpemented yet",
             "create_friend_mutation_payload_friend"
         )
     }
-    pub async fn friend_name(&self, ctx: &Context<'_>, object: &Friend) -> String {
+    pub async fn friend_name(&self, ctx: &Context<'_>, object: &Friend) -> Result<String> {
         unimplemented!("resolver {} is unimpemented yet", "friend_name")
     }
     pub async fn friend_connection_nodes(
         &self,
         ctx: &Context<'_>,
         object: &FriendConnection,
-    ) -> Vec<Option<Friend>> {
+    ) -> Result<Vec<Option<Friend>>> {
         unimplemented!("resolver {} is unimpemented yet", "friend_connection_nodes")
     }
     pub async fn me_friends(
@@ -47,14 +47,14 @@ impl DataSource {
         ctx: &Context<'_>,
         object: &Me,
         first: Option<i64>,
-    ) -> FriendConnection {
+    ) -> Result<FriendConnection> {
         unimplemented!("resolver {} is unimpemented yet", "me_friends")
     }
     pub async fn me_notifications(
         &self,
         ctx: &Context<'_>,
         object: &Me,
-    ) -> Vec<Option<Notification>> {
+    ) -> Result<Vec<Option<Notification>>> {
         unimplemented!("resolver {} is unimpemented yet", "me_notifications")
     }
     pub async fn me_search(
@@ -62,10 +62,10 @@ impl DataSource {
         ctx: &Context<'_>,
         object: &Me,
         text: String,
-    ) -> Vec<Option<SearchResult>> {
+    ) -> Result<Vec<Option<SearchResult>>> {
         unimplemented!("resolver {} is unimpemented yet", "me_search")
     }
-    pub async fn me_status(&self, ctx: &Context<'_>, object: &Me) -> Option<Status> {
+    pub async fn me_status(&self, ctx: &Context<'_>, object: &Me) -> Result<Option<Status>> {
         unimplemented!("resolver {} is unimpemented yet", "me_status")
     }
     pub async fn notification_friends(
@@ -74,11 +74,15 @@ impl DataSource {
         object: &Notification,
         first: Option<i64>,
         num: Option<i64>,
-    ) -> FriendConnection {
+    ) -> Result<FriendConnection> {
         unimplemented!("resolver {} is unimpemented yet", "notification_friends")
     }
 
-    pub async fn query_custom_resolver(&self, ctx: &Context<'_>, object: &Query) -> Option<String> {
+    pub async fn query_custom_resolver(
+        &self,
+        ctx: &Context<'_>,
+        object: &Query,
+    ) -> Result<Option<String>> {
         unimplemented!()
     }
 }
