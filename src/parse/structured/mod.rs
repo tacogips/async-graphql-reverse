@@ -1,4 +1,5 @@
 pub mod schema;
+use crate::config::*;
 pub use schema::*;
 
 use anyhow::Result;
@@ -12,6 +13,7 @@ macro_rules! node_as_string {
 
 pub fn convert_to_structured_schema(
     service_document: async_gql_types::ServiceDocument,
+    config: &RendererConfig,
 ) -> Result<StructuredSchema> {
     let mut query_name: Option<String> = None;
     let mut mutation_name: Option<String> = None;
@@ -35,7 +37,7 @@ pub fn convert_to_structured_schema(
             }
 
             async_gql_types::TypeSystemDefinition::Type(type_def) => {
-                definitions.add_definition(convert_type_def(type_def));
+                definitions.add_definition(convert_type_def(type_def, config));
             }
 
             async_gql_types::TypeSystemDefinition::Directive(directive_def) => {
@@ -55,17 +57,23 @@ pub fn convert_to_structured_schema(
     })
 }
 
-fn convert_type_def(type_def: AsyncGqlPositioned<async_gql_types::TypeDefinition>) -> Definition {
+fn convert_type_def(
+    type_def: AsyncGqlPositioned<async_gql_types::TypeDefinition>,
+    config: &RendererConfig,
+) -> Definition {
     let line_pos = type_def.pos.line;
     let type_def = type_def.node;
 
     let name = node_as_string!(type_def.name);
     let description = type_def.description.map(|desc| node_as_string!(desc));
+    let resolver_settings = config.resolver_setting();
 
     match type_def.kind {
         async_gql_types::TypeKind::Scalar => Definition::Scalar(Scalar { name, line_pos }),
         async_gql_types::TypeKind::Object(object_type) => {
-            let fields = convert_fields(&object_type.fields);
+            let fields_resolver_setting = resolver_settings.get(&name);
+
+            let fields = convert_fields(&object_type.fields, fields_resolver_setting);
 
             let object = Object {
                 name,
@@ -82,7 +90,7 @@ fn convert_type_def(type_def: AsyncGqlPositioned<async_gql_types::TypeDefinition
             Definition::Object(object)
         }
         async_gql_types::TypeKind::Interface(interface) => {
-            let fields = convert_fields(&interface.fields);
+            let fields = convert_fields(&interface.fields, None);
 
             let intf = Interface {
                 name,
@@ -175,14 +183,18 @@ fn convert_enum_value(
 
 fn convert_fields(
     fields: &Vec<AsyncGqlPositioned<async_gql_types::FieldDefinition>>,
+    fields_resolver_setting: Option<&FieldsResolverSetting>,
 ) -> Vec<Field> {
     fields
         .iter()
-        .map(|field| convert_field_def(field))
+        .map(|field| convert_field_def(field, fields_resolver_setting))
         .collect()
 }
 
-fn convert_field_def(field_def: &AsyncGqlPositioned<async_gql_types::FieldDefinition>) -> Field {
+fn convert_field_def(
+    field_def: &AsyncGqlPositioned<async_gql_types::FieldDefinition>,
+    fields_resolver_setting: Option<&FieldsResolverSetting>,
+) -> Field {
     let line_pos = field_def.pos.line;
     let field_def = field_def.node.clone();
 
@@ -193,12 +205,25 @@ fn convert_field_def(field_def: &AsyncGqlPositioned<async_gql_types::FieldDefini
         );
     }
 
-    let arguments = field_def
+    let mut arguments: Vec<Argument> = field_def
         .arguments
         .iter()
         .map(|arg| convert_argument(arg))
         .collect();
 
+    if let Some(fields_resolver_setting) = fields_resolver_setting {
+        if let Some(resolver_setting) =
+            fields_resolver_setting.get(&node_as_string!(field_def.name))
+        {
+            if let Some(args) = &resolver_setting.argument {
+                let mut additional_args: Vec<Argument> = args
+                    .iter()
+                    .map(|arg| convert_argument_from_config_arg(arg))
+                    .collect();
+                arguments.append(&mut additional_args);
+            }
+        }
+    }
     Field {
         name: node_as_string!(field_def.name),
         description: field_def.description.map(|desc| node_as_string!(desc)),
@@ -247,6 +272,16 @@ fn convert_argument(
         name: node_as_string!(input_def.name),
         typ: convert_type_to_value(input_def.ty.node),
         description: input_def.description.map(|desc| node_as_string!(desc)),
+    }
+}
+
+fn convert_argument_from_config_arg(arg: &ResolverArgument) -> Argument {
+    let typ = async_gql_types::Type::new(&arg.arg_type)
+        .unwrap_or_else(|| panic!("invalid resolver argument type :{:?}", arg));
+    Argument {
+        name: arg.arg_name.clone(),
+        typ: convert_type_to_value(typ),
+        description: arg.arg_description.clone(),
     }
 }
 

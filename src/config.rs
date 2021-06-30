@@ -17,10 +17,17 @@ pub struct AdditionalResolver {
 }
 
 #[derive(Deserialize, Debug, Clone)]
+pub struct ResolverArgument {
+    pub arg_name: String,
+    pub arg_type: String,
+    pub arg_description: Option<String>,
+}
+#[derive(Deserialize, Debug, Clone)]
 pub struct ResolverSetting {
     pub target_type: String,
     pub target_field: String,
     pub resolver_type: Option<String>,
+    pub argument: Option<Vec<ResolverArgument>>,
 }
 
 #[derive(Deserialize, Debug, Clone)]
@@ -28,6 +35,7 @@ pub struct Additional {
     pub body: String,
 }
 
+pub type FieldsResolverSetting<'a> = HashMap<String, &'a ResolverSetting>;
 #[derive(Deserialize, Debug)]
 pub struct RendererConfig {
     pub using: Option<HashMap<String, String>>,
@@ -64,7 +72,7 @@ impl RendererConfig {
         }
     }
 
-    pub fn resolver_setting(&self) -> HashMap<String, HashMap<String, &ResolverSetting>> {
+    pub fn resolver_setting(&self) -> HashMap<String, FieldsResolverSetting> {
         match self.resolver.as_ref() {
             None => return HashMap::new(),
             Some(resolver) => {

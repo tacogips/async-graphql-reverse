@@ -47,6 +47,9 @@ impl DataSource {
         ctx: &Context<'_>,
         object: &Me,
         first: Option<i64>,
+        limit: Option<i64>,
+        sort_direction: Option<SortDirection>,
+        next_token: Option<String>,
     ) -> Result<FriendConnection> {
         unimplemented!("resolver {} is unimpemented yet", "me_friends")
     }

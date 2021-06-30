@@ -19,15 +19,15 @@ pub fn parse_schema_file(path: &str, config: &RendererConfig) -> Result<Structur
                 schema_body = format!("{} {}", schema_body, merged_additional);
             }
 
-            parse_schema(&schema_body)
+            parse_schema(&schema_body, config)
         }
         Err(e) => Err(anyhow!("{}", e)),
     }
 }
 
-pub fn parse_schema(schema_body: &str) -> Result<StructuredSchema> {
+pub fn parse_schema(schema_body: &str, config: &RendererConfig) -> Result<StructuredSchema> {
     match async_graphql_parser::parse_schema(schema_body) {
-        Ok(schema) => convert_to_structured_schema(schema),
+        Ok(schema) => convert_to_structured_schema(schema, config),
         Err(e) => Err(anyhow!("{}", e)),
     }
 }
