@@ -10,7 +10,7 @@ pub struct CustomResolvers {
 }
 
 #[derive(Deserialize, Debug)]
-pub struct CustomResolver {
+pub struct AdditionalResolver {
     pub target_type: String,
     pub body: String,
     pub using: Option<String>,
@@ -34,7 +34,7 @@ pub struct RendererConfig {
     pub default_data_source_fetch_method: Option<String>,
     pub custom_member_types: Option<Vec<String>>,
     pub resolver: Option<Vec<ResolverSetting>>,
-    pub custom_resolver: Option<Vec<CustomResolver>>,
+    pub additional_resolver: Option<Vec<AdditionalResolver>>,
     pub additional: Option<Vec<Additional>>,
 }
 
@@ -88,7 +88,7 @@ impl RendererConfig {
     }
 
     pub fn custom_resolvers(&self) -> HashMap<String, CustomResolvers> {
-        match self.custom_resolver.as_ref() {
+        match self.additional_resolver.as_ref() {
             None => return HashMap::new(),
             Some(custom_resolver) => {
                 if custom_resolver.is_empty() {
@@ -129,7 +129,7 @@ impl Default for RendererConfig {
             custom_member_types: None,
             default_data_source_fetch_method: None,
             resolver: None,
-            custom_resolver: None,
+            additional_resolver: None,
             additional: None,
         }
     }
