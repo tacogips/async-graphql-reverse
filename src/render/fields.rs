@@ -6,7 +6,7 @@ use super::sorter::sort_by_line_pos;
 use super::tokens::*;
 use super::typ::*;
 use super::RenderContext;
-use crate::config::RendererConfig;
+use crate::config::*;
 use anyhow::Result;
 use heck::SnakeCase;
 use proc_macro2::{Ident, TokenStream};
@@ -42,7 +42,7 @@ pub fn fields_info(
     schema: &StructuredSchema,
     config: &RendererConfig,
     context: &RenderContext,
-    field_resolver: Option<&HashMap<String, String>>,
+    field_resolver: Option<&HashMap<String, &ResolverSetting>>,
     custom_member_types: &HashSet<String>,
 ) -> Result<FieldsInfo> {
     fields.sort_by(sort_by_line_pos);
@@ -79,7 +79,7 @@ fn convert_field(
     schema: &StructuredSchema,
     render_context: &RenderContext,
     renderer_config: &RendererConfig,
-    field_resolver: Option<&HashMap<String, String>>,
+    field_resolver: Option<&HashMap<String, &ResolverSetting>>,
     custom_member_types: &HashSet<String>,
 ) -> Result<MemberAndMethod> {
     match field_is_method_or_member(
@@ -102,11 +102,11 @@ pub fn field_is_method_or_member(
     schema: &StructuredSchema,
     render_context: &RenderContext,
     _renderer_config: &RendererConfig,
-    field_resolver: &Option<&HashMap<String, String>>,
+    field_resolver: &Option<&HashMap<String, &ResolverSetting>>,
     custom_member_types: &HashSet<String>,
 ) -> Result<ResolverType> {
     if let Some(field_resolver) = field_resolver {
-        if let Some(method_type) = resolver_setting_of_field(&field.name, &field_resolver) {
+        if let Some(method_type) = resolver_type_in_resolver_setting(&field.name, &field_resolver) {
             return Ok(method_type);
         }
     }
@@ -135,13 +135,16 @@ pub enum ResolverType {
     Field,
 }
 
-fn resolver_setting_of_field(
+fn resolver_type_in_resolver_setting(
     field_name: &str,
-    resolver_field_setting: &HashMap<String, String>,
+    resolver_field_setting: &HashMap<String, &ResolverSetting>,
 ) -> Option<ResolverType> {
-    resolver_field_setting
-        .get(field_name)
-        .map(|setting| ResolverType::from_str(setting).unwrap())
+    match resolver_field_setting.get(field_name) {
+        Some(ResolverSetting { resolver_type, .. }) => resolver_type
+            .as_ref()
+            .map(|typ| ResolverType::from_str(typ).unwrap()),
+        None => None,
+    }
 }
 
 /// default:

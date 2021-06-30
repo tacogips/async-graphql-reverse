@@ -6,7 +6,7 @@ use super::files::{fmt_file, pathbuf_to_str};
 use super::sorter::sort_by_line_pos;
 use super::tokens::*;
 use super::RenderContext;
-use crate::config::{CustomResolvers, RendererConfig};
+use crate::config::*;
 use anyhow::Result;
 use proc_macro2::TokenStream;
 use quote::*;
@@ -43,9 +43,7 @@ pub fn write_objects(
     let mut object_defs = Vec::<String>::new();
 
     let custom_member_types = render_config.custom_member_types();
-
     let resolver_setting = render_config.resolver_setting();
-
     let custom_resolvers = render_config.custom_resolvers();
 
     for each_obj in objects {
@@ -99,7 +97,7 @@ fn object_token(
     object: &Object,
     schema: &StructuredSchema,
     render_config: &RendererConfig,
-    resolver_setting: &HashMap<String, HashMap<String, String>>,
+    resolver_setting: &HashMap<String, HashMap<String, &ResolverSetting>>,
     custom_member_types: &HashSet<String>,
     custom_resolvers: &HashMap<String, CustomResolvers>,
 ) -> Result<(TokenStream, Vec<TokenStream>)> {

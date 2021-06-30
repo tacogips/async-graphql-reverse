@@ -16,11 +16,11 @@ pub struct AdditionalResolver {
     pub using: Option<String>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct ResolverSetting {
     pub target_type: String,
     pub target_field: String,
-    pub resolver_type: String,
+    pub resolver_type: Option<String>,
 }
 
 #[derive(Deserialize, Debug, Clone)]
@@ -64,22 +64,20 @@ impl RendererConfig {
         }
     }
 
-    pub fn resolver_setting(&self) -> HashMap<String, HashMap<String, String>> {
+    pub fn resolver_setting(&self) -> HashMap<String, HashMap<String, &ResolverSetting>> {
         match self.resolver.as_ref() {
             None => return HashMap::new(),
             Some(resolver) => {
                 if resolver.is_empty() {
                     return HashMap::new();
                 } else {
-                    let mut result = HashMap::<String, HashMap<String, String>>::new();
+                    let mut result = HashMap::<String, HashMap<String, &ResolverSetting>>::new();
                     for each_resolver in resolver.iter() {
                         let field_and_resolver_type = result
                             .entry(each_resolver.target_type.to_string())
-                            .or_insert(HashMap::<String, String>::new());
-                        field_and_resolver_type.insert(
-                            each_resolver.target_field.to_string(),
-                            each_resolver.resolver_type.to_string(),
-                        );
+                            .or_insert(HashMap::<String, &ResolverSetting>::new());
+                        field_and_resolver_type
+                            .insert(each_resolver.target_field.to_string(), each_resolver);
                     }
                     result
                 }
