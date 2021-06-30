@@ -200,10 +200,28 @@ fn resolver_with_member(
         None => quote! {},
     };
 
+    let member_need_clone = if let ValueTypeDef::Named(typ) = &field.typ {
+        let type_def = typ.as_type_def(&schema.definitions).unwrap();
+        match type_def {
+            TypeDef::Primitive(PrimitiveKind::Int)
+            | TypeDef::Primitive(PrimitiveKind::Float)
+            | TypeDef::Primitive(PrimitiveKind::Boolean) => false,
+            _ => true,
+        }
+    } else {
+        true
+    };
+
+    let resolver_body = if member_need_clone {
+        quote! { self.#name.clone() }
+    } else {
+        quote! { self.#name }
+    };
+
     let method = Some(quote! {
         #field_rustdoc
         pub async fn #name(&self) -> #typ  {
-            self.#name.clone()
+            #resolver_body
         }
     });
 

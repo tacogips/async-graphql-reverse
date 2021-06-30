@@ -53,7 +53,7 @@ pub struct Subscription {
 #[Object]
 impl Subscription {
     pub async fn badge(&self) -> i64 {
-        self.badge.clone()
+        self.badge
     }
 }
 #[derive(Debug)]
@@ -88,7 +88,7 @@ pub struct FriendConnection {
 #[Object]
 impl FriendConnection {
     pub async fn total_count(&self) -> i64 {
-        self.total_count.clone()
+        self.total_count
     }
     pub async fn nodes(&self, ctx: &Context<'_>) -> Result<Vec<Option<Friend>>> {
         ctx.data_unchecked::<DataSource>()
@@ -115,16 +115,16 @@ impl Me {
         self.name.clone()
     }
     pub async fn rank(&self) -> f64 {
-        self.rank.clone()
+        self.rank
     }
     pub async fn email(&self) -> Option<String> {
         self.email.clone()
     }
     pub async fn age(&self) -> Option<i64> {
-        self.age.clone()
+        self.age
     }
     pub async fn active(&self) -> Option<bool> {
-        self.active.clone()
+        self.active
     }
     pub async fn friends(&self, ctx: &Context<'_>, first: Option<i64>) -> Result<FriendConnection> {
         ctx.data_unchecked::<DataSource>()
