@@ -1,6 +1,5 @@
 mod argument;
 mod comment;
-mod config;
 mod datasource;
 mod dependencies;
 mod enums;
@@ -19,9 +18,9 @@ mod unions;
 
 use super::parse;
 use super::parse::*;
+use crate::config::RendererConfig;
 use anyhow::{anyhow, Result};
 use comment::*;
-pub use config::*;
 use files::{fmt_file, pathbuf_to_str};
 use quote::*;
 use std::fs::{self, OpenOptions};

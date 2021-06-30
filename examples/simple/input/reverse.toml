@@ -27,3 +27,11 @@ body ="""
     }
 """
 #using = "use std::fs"
+
+[[additional]]
+body = """
+enum SortDirection {
+  ASC
+  DESC
+}
+"""

@@ -1,10 +1,10 @@
 use super::super::parse::{self, *};
-use super::config::RendererConfig;
 use super::fields::*;
 use super::fields::{field_is_method_or_member, ResolverType};
 use super::sorter::sort_by_line_pos;
 use super::typ::*;
 use super::RenderContext;
+use crate::config::RendererConfig;
 use anyhow::Result;
 use heck::SnakeCase;
 use proc_macro2::TokenStream;

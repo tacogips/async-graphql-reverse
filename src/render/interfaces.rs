@@ -1,12 +1,12 @@
 use super::super::parse::*;
 use super::comment::*;
-use super::config::RendererConfig;
 use super::dependencies::*;
 use super::files::{fmt_file, pathbuf_to_str};
 use super::sorter::sort_by_line_pos;
 use super::tokens::*;
 use super::typ::*;
 use super::RenderContext;
+use crate::config::RendererConfig;
 use anyhow::Result;
 use heck::CamelCase;
 use proc_macro2::TokenStream;
