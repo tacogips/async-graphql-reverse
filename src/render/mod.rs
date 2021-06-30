@@ -56,7 +56,7 @@ struct ModInfo {
 pub fn output_datasource(
     output_dir: &str,
     structured_schema: StructuredSchema,
-    config: RendererConfig,
+    config: &RendererConfig,
 ) -> Result<()> {
     setup_output_dir(output_dir)?;
     datasource_mod_file(output_dir, &structured_schema, &config)?;

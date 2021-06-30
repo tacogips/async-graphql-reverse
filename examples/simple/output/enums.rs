@@ -6,3 +6,8 @@ pub enum Status {
     Registered,
     EmailVerified,
 }
+#[derive(Enum, Copy, Clone, Debug, Eq, PartialEq)]
+pub enum SortDirection {
+    Asc,
+    Desc,
+}

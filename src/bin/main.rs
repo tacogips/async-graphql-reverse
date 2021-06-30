@@ -46,9 +46,9 @@ fn main() {
     };
 
     match opts.command {
-        Command::DataSource => match parse_schema_file(&opts.input_schema) {
+        Command::DataSource => match parse_schema_file(&opts.input_schema, &config) {
             Ok(structured_schema) => {
-                match output_datasource(&opts.output_dir, structured_schema, config) {
+                match output_datasource(&opts.output_dir, structured_schema, &config) {
                     Ok(()) => {
                         println!("files outputed in {}", opts.output_dir);
                     }
@@ -62,7 +62,7 @@ fn main() {
                 println!("{}", e);
             }
         },
-        Command::Schema => match parse_schema_file(&opts.input_schema) {
+        Command::Schema => match parse_schema_file(&opts.input_schema, &config) {
             Ok(structured_schema) => {
                 match output_schema(&opts.output_dir, structured_schema, config) {
                     Ok(()) => {
