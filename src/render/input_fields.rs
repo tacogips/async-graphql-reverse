@@ -54,7 +54,7 @@ fn convert_input_field(
     render_context: &RenderContext,
 ) -> Result<InputMember> {
     let name = input_field_name(field);
-    let typ = value_type_def_token(&field.typ, &schema)?;
+    let typ = value_type_def_token(&field.typ, &schema, &render_context)?;
     let member = quote! { pub #name :#typ };
 
     let dependencies = dependency(&field.typ, schema, render_context)?;

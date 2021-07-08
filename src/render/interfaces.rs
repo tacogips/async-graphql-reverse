@@ -101,9 +101,14 @@ fn interface_token(
     let mut interface_field_tokens = Vec::<TokenStream>::new();
     let mut all_dependency_tokens = Vec::<TokenStream>::new();
 
+    let render_context = RenderContext {
+        parent: TypeDef::Interface(interface),
+    };
+
     for interface_field in interface.fields.iter() {
         let field_name = &interface_field.name;
-        let field_type = value_type_def_token(&interface_field.typ, &schema)?.to_string();
+        let field_type =
+            value_type_def_token(&interface_field.typ, &schema, &render_context)?.to_string();
 
         let field_token = quote! {field(name = #field_name, type = #field_type )};
         interface_field_tokens.push(field_token);

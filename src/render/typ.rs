@@ -1,4 +1,5 @@
 use super::super::parse::{self, *};
+use super::RenderContext;
 use anyhow::Result;
 use proc_macro2::TokenStream;
 use quote::*;
@@ -6,12 +7,13 @@ use quote::*;
 pub fn value_type_def_token(
     type_def: &parse::ValueTypeDef,
     schema: &StructuredSchema,
+    render_context: &RenderContext,
 ) -> Result<TokenStream> {
     let result = match type_def {
         parse::ValueTypeDef::Named(named_value) => {
             let nullable = named_value.is_nullable;
             let type_def = named_value.as_type_def(&schema.definitions)?;
-            let type_def = type_def_token(&type_def)?;
+            let type_def = type_def_token(&type_def, &render_context)?;
             if nullable {
                 quote! { Option<#type_def > }
             } else {
@@ -19,14 +21,18 @@ pub fn value_type_def_token(
             }
         }
         parse::ValueTypeDef::List(list_value) => {
-            let inner_token = value_type_def_token(&list_value.inner, schema)?;
+            let inner_token = value_type_def_token(&list_value.inner, schema, render_context)?;
             quote! { Vec<#inner_token> }
         }
     };
     Ok(result)
 }
 
-fn type_def_token(type_def: &parse::TypeDef) -> Result<TokenStream> {
+fn type_def_token(
+    type_def: &parse::TypeDef,
+    render_context: &RenderContext,
+) -> Result<TokenStream> {
+    //TODO() impl
     let result = match type_def {
         parse::TypeDef::Primitive(primitive) => {
             let name = format_ident!("{}", primitive.rust_type());

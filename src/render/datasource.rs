@@ -59,10 +59,10 @@ fn datasouerce_token_method(
         format!("{}_{}", context.parent_name(), field.name_string()).to_snake_case();
     let resolver_method_name = format_ident!("{}", resolver_name);
 
-    let typ = value_type_def_token(&field.typ, &schema)?;
+    let typ = value_type_def_token(&field.typ, &schema, &context)?;
     let typ: TokenStream = quote! {Result<#typ>};
 
-    let (arg_defs, _) = args_defs_and_values(field, &schema, "_")?;
+    let (arg_defs, _) = args_defs_and_values(field, &schema, "_", &context)?;
 
     let q = quote! {
         pub async fn #resolver_method_name(&self, _ctx: &Context<'_>, _object: &#parent_name #arg_defs) -> #typ{

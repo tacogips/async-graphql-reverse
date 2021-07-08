@@ -190,7 +190,7 @@ fn resolver_with_member(
     context: &RenderContext,
 ) -> Result<MemberAndMethod> {
     let name = field_or_member_name(field);
-    let typ = value_type_def_token(&field.typ, &schema)?;
+    let typ = value_type_def_token(&field.typ, &schema, &context)?;
     let member = Some(quote! { pub #name :#typ });
 
     let field_rustdoc = match &field.description {
@@ -241,6 +241,7 @@ pub fn args_defs_and_values(
     field: &parse::Field,
     schema: &StructuredSchema,
     name_prefix: &str,
+    context: &RenderContext,
 ) -> Result<(TokenStream, TokenStream)> {
     if field.arguments.is_empty() {
         Ok((quote! {}, quote! {}))
@@ -248,7 +249,7 @@ pub fn args_defs_and_values(
         let arg_defs = field
             .arguments
             .iter()
-            .map(|argument| argument_def_token(argument, &schema, &name_prefix))
+            .map(|argument| argument_def_token(argument, &schema, &name_prefix, &context))
             .collect::<Result<Vec<TokenStream>>>()?;
         let arg_defs = separate_by_comma(arg_defs);
 
@@ -280,7 +281,7 @@ fn resolver_with_datasource(
     context: &RenderContext,
     renderer_config: &RendererConfig,
 ) -> Result<MemberAndMethod> {
-    let (arg_defs, arg_values) = args_defs_and_values(&field, &schema, "")?;
+    let (arg_defs, arg_values) = args_defs_and_values(&field, &schema, "", &context)?;
 
     let field_name = field_or_member_name(field);
     let resolver_method_name = format_ident!(
@@ -298,7 +299,7 @@ fn resolver_with_datasource(
         None => quote! {},
     };
 
-    let typ = value_type_def_token(&field.typ, &schema)?;
+    let typ = value_type_def_token(&field.typ, &schema, &context)?;
     let typ: TokenStream = quote! {Result<#typ>};
     let data_source_fetch_method: TokenStream = renderer_config
         .data_source_fetch_method_from_ctx()
