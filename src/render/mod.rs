@@ -156,13 +156,12 @@ fn schema_mod_file(output_dir: &str, info: ModInfo, schema: &StructuredSchema) -
         )?;
     }
 
-    dest_file.write(quote! { use async_graphql::*; }.to_string().as_bytes())?;
-
     match schema.query_name.as_ref().map(|q| {
         let query = format_ident!("{}", q);
         quote! { #query }
     }) {
         Some(query_token) => {
+            dest_file.write(quote! { use async_graphql::*; }.to_string().as_bytes())?;
             let mutation_token = schema
                 .mutation_name
                 .as_ref()
@@ -182,13 +181,13 @@ fn schema_mod_file(output_dir: &str, info: ModInfo, schema: &StructuredSchema) -
             dest_file.flush()?;
         }
         None => {
-            let schema_token = r#"""
+            let schema_token = r#"
                 // Skip building schema_builder() due to no query defined.
                 // // example schema_builder()
                 // pub fn schema_builder() -> SchemaBuilder<YourQueryType, EmptyMutation, EmptySubscription> {
                 //     Schema::build(YourQueryType, EmptyMutation, EmptySubscription)
                 // }
-            """#;
+            "#;
 
             dest_file.write(schema_token.as_bytes())?;
             dest_file.flush()?;
