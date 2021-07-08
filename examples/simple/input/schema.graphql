@@ -37,6 +37,12 @@ input CreateFriendMutationInput {
   userId: ID!
 }
 
+input RecursiveInput {
+  id: String
+  input1: RecursiveInput
+  input2: [RecursiveInput]
+}
+
 scalar Url
 
 interface User {
@@ -47,6 +53,7 @@ interface User {
 type Friend implements User {
   id: ID!
   name: String!
+  others: [Friend]
 }
 
 type FriendConnection {

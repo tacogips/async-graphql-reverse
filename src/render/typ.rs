@@ -39,7 +39,18 @@ fn type_def_token(
             quote! { #name }
         }
         parse::TypeDef::Object(object) => {
-            let name = format_ident!("{}", object.name_string());
+            let recursive = if let parse::TypeDef::InputObject(parent) = render_context.parent {
+                parent.name == object.name
+            } else {
+                false
+            };
+
+            let name: TokenStream = if recursive {
+                format!("Box<{}>", object.name_string()).parse().unwrap()
+            } else {
+                format!("{}", object.name_string()).parse().unwrap()
+            };
+
             quote! { #name }
         }
         parse::TypeDef::Enum(enum_kind) => {
@@ -47,7 +58,19 @@ fn type_def_token(
             quote! { #name }
         }
         parse::TypeDef::InputObject(input_object) => {
-            let name = format_ident!("{}", input_object.name_string());
+            let recursive = if let parse::TypeDef::InputObject(parent) = render_context.parent {
+                parent.name == input_object.name
+            } else {
+                false
+            };
+
+            let name: TokenStream = if recursive {
+                format!("Box<{}>", input_object.name_string())
+                    .parse()
+                    .unwrap()
+            } else {
+                format!("{}", input_object.name_string()).parse().unwrap()
+            };
             quote! { #name }
         }
         parse::TypeDef::Scalar(scalar) => {

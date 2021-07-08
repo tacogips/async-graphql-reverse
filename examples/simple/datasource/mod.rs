@@ -35,6 +35,15 @@ impl DataSource {
     pub async fn friend_name(&self, _ctx: &Context<'_>, _object: &Friend) -> Result<String> {
         unimplemented!("resolver {} is unimpemented yet", "friend_name")
     }
+
+    pub async fn friend_others(
+        &self,
+        _ctx: &Context<'_>,
+        _object: &Friend,
+    ) -> Result<Vec<Option<Friend>>> {
+        unimplemented!("resolver {} is unimpemented yet", "friend_connection_nodes")
+    }
+
     pub async fn friend_connection_nodes(
         &self,
         _ctx: &Context<'_>,
@@ -42,6 +51,7 @@ impl DataSource {
     ) -> Result<Vec<Option<Friend>>> {
         unimplemented!("resolver {} is unimpemented yet", "friend_connection_nodes")
     }
+
     pub async fn me_friends(
         &self,
         _ctx: &Context<'_>,

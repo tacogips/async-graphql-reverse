@@ -5,3 +5,9 @@ use async_graphql::*;
 pub struct CreateFriendMutationInput {
     pub user_id: ID,
 }
+#[derive(Debug, InputObject)]
+pub struct RecursiveInput {
+    pub id: Option<String>,
+    pub input1: Option<Box<RecursiveInput>>,
+    pub input2: Vec<Option<Box<RecursiveInput>>>,
+}

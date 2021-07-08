@@ -81,6 +81,11 @@ impl Friend {
             .friend_name(&ctx, self)
             .await
     }
+    pub async fn others(&self, ctx: &Context<'_>) -> Result<Vec<Option<Friend>>> {
+        ctx.data_unchecked::<DataSource>()
+            .friend_others(&ctx, self)
+            .await
+    }
 }
 #[derive(Debug)]
 pub struct FriendConnection {

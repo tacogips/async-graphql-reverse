@@ -28,7 +28,7 @@ use std::io::{BufWriter, Write};
 use std::path::{Path, PathBuf};
 
 pub struct RenderContext<'a> {
-    parent: parse::TypeDef<'a>,
+    pub parent: parse::TypeDef<'a>,
 }
 
 impl<'a> RenderContext<'a> {
