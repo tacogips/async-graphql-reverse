@@ -62,10 +62,10 @@ fn datasouerce_token_method(
     let typ = value_type_def_token(&field.typ, &schema)?;
     let typ: TokenStream = quote! {Result<#typ>};
 
-    let (arg_defs, _) = args_defs_and_values(field, &schema)?;
+    let (arg_defs, _) = args_defs_and_values(field, &schema, "_")?;
 
     let q = quote! {
-        pub async fn #resolver_method_name(&self, ctx: &Context<'_>, object: &#parent_name #arg_defs) -> #typ{
+        pub async fn #resolver_method_name(&self, _ctx: &Context<'_>, _object: &#parent_name #arg_defs) -> #typ{
             unimplemented!("resolver {} is unimpemented yet", #resolver_name )
         }
     };

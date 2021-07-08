@@ -9,8 +9,9 @@ use super::typ::*;
 pub fn argument_def_token(
     argument: &parse::Argument,
     schema: &StructuredSchema,
+    name_prefix: &str,
 ) -> Result<TokenStream> {
-    let name = format_ident!("{}", argument.name_string().to_snake_case());
+    let name = format_ident!("{}{}", name_prefix, argument.name_string().to_snake_case());
     let typ = value_type_def_token(&argument.typ, &schema)?;
 
     let result = quote! { #name:#typ };
