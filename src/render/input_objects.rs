@@ -90,7 +90,7 @@ fn input_object_token(
     let members = separate_by_comma(members);
     let object_def = quote! {
 
-        #[derive(Debug,InputObject)]
+        #[derive(Debug, InputObject, Clone)]
         pub struct #object_name{
             #members
         }

@@ -135,7 +135,7 @@ fn interface_token(
 
         #[derive(Interface)]
         #[graphql(#interface_fields_token)]
-        #[derive(Debug)]
+        #[derive(Debug, Clone)]
         pub enum #interface_name{
             #interface_memer_tokens
         }

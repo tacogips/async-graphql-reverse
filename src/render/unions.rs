@@ -90,7 +90,7 @@ fn union_token(
     let members = separate_by_comma(members);
     let union_def = quote! {
 
-        #[derive(Union)]
+        #[derive(Union, Debug, Clone)]
         pub enum #union_name {
             #members
         }

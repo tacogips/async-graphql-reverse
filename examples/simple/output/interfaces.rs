@@ -5,7 +5,7 @@ use super::objects::Me;
 use async_graphql::*;
 #[derive(Interface)]
 #[graphql(field(name = "id", type = "ID"), field(name = "name", type = "String"))]
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum User {
     Friend(Friend),
     Me(Me),

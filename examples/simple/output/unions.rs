@@ -3,7 +3,7 @@
 use super::objects::Friend;
 use super::objects::Notification;
 use async_graphql::*;
-#[derive(Union)]
+#[derive(Union, Debug, Clone)]
 pub enum SearchResult {
     Friend(Friend),
     Notification(Notification),
