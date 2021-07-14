@@ -7,7 +7,7 @@ use super::scalars::Url;
 use super::unions::SearchResult;
 use crate::datasource::DataSource;
 use async_graphql::*;
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Query {}
 #[Object]
 impl Query {
@@ -33,7 +33,7 @@ impl Query {
             .await
     }
 }
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Mutation {}
 #[Object]
 impl Mutation {
@@ -47,7 +47,7 @@ impl Mutation {
             .await
     }
 }
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Subscription {
     pub badge: i64,
 }
@@ -57,7 +57,7 @@ impl Subscription {
         self.badge
     }
 }
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct CreateFriendMutationPayload {}
 #[Object]
 impl CreateFriendMutationPayload {
@@ -67,7 +67,7 @@ impl CreateFriendMutationPayload {
             .await
     }
 }
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Friend {
     pub id: ID,
 }
@@ -87,7 +87,7 @@ impl Friend {
             .await
     }
 }
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct FriendConnection {
     pub total_count: i64,
 }
@@ -102,7 +102,7 @@ impl FriendConnection {
             .await
     }
 }
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Me {
     pub id: ID,
     pub name: String,
@@ -167,7 +167,7 @@ impl Me {
             .await
     }
 }
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Notification {
     pub id: ID,
     pub title: String,

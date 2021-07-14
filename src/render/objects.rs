@@ -143,7 +143,7 @@ fn object_token(
     let methods = separate_by_space(methods);
     let object_def = quote! {
 
-        #[derive(Debug)]
+        #[derive(Debug, Clone)]
         pub struct #object_name{
             #members
         }
