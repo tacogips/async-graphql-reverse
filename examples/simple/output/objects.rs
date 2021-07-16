@@ -111,6 +111,7 @@ pub struct Me {
     pub age: Option<i64>,
     pub active: Option<bool>,
     pub web: Option<Url>,
+    pub search_2: Vec<SearchResult>,
 }
 #[Object]
 impl Me {
@@ -160,6 +161,9 @@ impl Me {
         ctx.data_unchecked::<DataSource>()
             .me_search(&ctx, self, text)
             .await
+    }
+    pub async fn search_2(&self) -> Vec<SearchResult> {
+        self.search_2.clone()
     }
     pub async fn status(&self, ctx: &Context<'_>) -> Result<Option<Status>> {
         ctx.data_unchecked::<DataSource>()
