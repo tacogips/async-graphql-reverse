@@ -26,7 +26,7 @@ type Subscription {
 }
 
 """
-this is comment for objetc
+this is comment for object
 """
 type CreateFriendMutationPayload
   @model(queries: null, mutations: null, subscriptions: null) {
@@ -72,7 +72,7 @@ type Me implements User {
   notifications: [Notification]
   web: Url
   search(text: String!): [SearchResult]
-  search_2(text: String!): [SearchResult!]
+  searchSecond(text: String!): [SearchResult!]
   status: Status
 }
 

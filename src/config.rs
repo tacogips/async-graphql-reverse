@@ -16,6 +16,18 @@ pub struct AdditionalResolver {
     pub using: Option<String>,
 }
 
+pub struct HiddenFields {
+    pub using: Vec<String>,
+    pub field_defs: Vec<String>,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct HiddenField {
+    pub target_type: String,
+    pub field_def: String,
+    pub using: Option<String>,
+}
+
 #[derive(Deserialize, Debug, Clone)]
 pub struct ResolverArgument {
     pub arg_name: String,
@@ -43,6 +55,7 @@ pub struct RendererConfig {
     pub custom_member_types: Option<Vec<String>>,
     pub resolver: Option<Vec<ResolverSetting>>,
     pub additional_resolver: Option<Vec<AdditionalResolver>>,
+    pub hidden_field: Option<Vec<HiddenField>>,
     pub additional: Option<Vec<Additional>>,
 }
 
@@ -86,6 +99,34 @@ impl RendererConfig {
                             .or_insert(HashMap::<String, &ResolverSetting>::new());
                         field_and_resolver_type
                             .insert(each_resolver.target_field.to_string(), each_resolver);
+                    }
+                    result
+                }
+            }
+        }
+    }
+
+    pub fn hidden_fields(&self) -> HashMap<String, HiddenFields> {
+        match self.hidden_field.as_ref() {
+            None => return HashMap::new(),
+            Some(hidden_field) => {
+                if hidden_field.is_empty() {
+                    return HashMap::new();
+                } else {
+                    let mut result = HashMap::<String, HiddenFields>::new();
+                    for each_hidden_field in hidden_field.iter() {
+                        let hidden_field = result
+                            .entry(each_hidden_field.target_type.to_string())
+                            .or_insert(HiddenFields {
+                                using: vec![],
+                                field_defs: vec![],
+                            });
+                        hidden_field
+                            .field_defs
+                            .push(each_hidden_field.field_def.clone());
+                        if let Some(using) = each_hidden_field.using.as_ref() {
+                            hidden_field.using.push(using.clone());
+                        }
                     }
                     result
                 }
@@ -137,6 +178,7 @@ impl Default for RendererConfig {
             resolver: None,
             additional_resolver: None,
             additional: None,
+            hidden_field: None,
         }
     }
 }

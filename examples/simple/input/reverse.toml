@@ -17,7 +17,7 @@ resolver_type = "method"
 
 [[resolver]]
 target_type = "Me"
-target_field = "search_2"
+target_field = "searchSecond"
 resolver_type = "field"
 
 [[resolver]]
@@ -55,3 +55,12 @@ enum SortDirection {
   DESC
 }
 """
+
+
+[[hidden_field]]
+target_type ="Friend"
+field_def ="this_is_a_hidden_field: String"
+
+[[hidden_field]]
+target_type ="Friend"
+field_def ="this_is_another_hidden_field: i64"

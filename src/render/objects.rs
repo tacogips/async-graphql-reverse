@@ -45,6 +45,7 @@ pub fn write_objects(
     let custom_member_types = render_config.custom_member_types();
     let resolver_setting = render_config.resolver_setting();
     let custom_resolvers = render_config.custom_resolvers();
+    let hidden_fields = render_config.hidden_fields();
 
     for each_obj in objects {
         let (object_token, dependencies) = object_token(
@@ -54,6 +55,7 @@ pub fn write_objects(
             &resolver_setting,
             &custom_member_types,
             &custom_resolvers,
+            &hidden_fields,
         )?;
 
         object_defs.push(object_token.to_string());
@@ -100,6 +102,7 @@ fn object_token(
     resolver_setting: &HashMap<String, HashMap<String, &ResolverSetting>>,
     custom_member_types: &HashSet<String>,
     custom_resolvers: &HashMap<String, CustomResolvers>,
+    hidden_fields: &HashMap<String, HiddenFields>,
 ) -> Result<(TokenStream, Vec<TokenStream>)> {
     let object_name = format_ident!("{}", object.name);
 
@@ -110,7 +113,7 @@ fn object_token(
     let field_resolver = resolver_setting.get(&object.name);
 
     let FieldsInfo {
-        members,
+        mut members,
         mut methods,
         mut dependencies,
     } = fields_info(
@@ -136,6 +139,23 @@ fn object_token(
             .collect();
 
         methods.append(&mut bodies);
+        dependencies.append(&mut usings);
+    }
+
+    if let Some(hidden_fields) = hidden_fields.get(&object.name) {
+        let mut defs: Vec<TokenStream> = hidden_fields
+            .field_defs
+            .iter()
+            .map(|e| e.parse::<TokenStream>().unwrap())
+            .collect();
+
+        let mut usings: Vec<TokenStream> = hidden_fields
+            .using
+            .iter()
+            .map(|e| e.parse::<TokenStream>().unwrap())
+            .collect();
+
+        members.append(&mut defs);
         dependencies.append(&mut usings);
     }
 

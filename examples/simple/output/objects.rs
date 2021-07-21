@@ -70,6 +70,8 @@ impl CreateFriendMutationPayload {
 #[derive(Debug, Clone)]
 pub struct Friend {
     pub id: ID,
+    this_is_a_hidden_field: String,
+    this_is_another_hidden_field: i64,
 }
 #[Object]
 impl Friend {
@@ -111,7 +113,7 @@ pub struct Me {
     pub age: Option<i64>,
     pub active: Option<bool>,
     pub web: Option<Url>,
-    pub search_2: Vec<SearchResult>,
+    pub search_second: Vec<SearchResult>,
 }
 #[Object]
 impl Me {
@@ -162,8 +164,8 @@ impl Me {
             .me_search(&ctx, self, text)
             .await
     }
-    pub async fn search_2(&self) -> Vec<SearchResult> {
-        self.search_2.clone()
+    pub async fn search_second(&self) -> Vec<SearchResult> {
+        self.search_second.clone()
     }
     pub async fn status(&self, ctx: &Context<'_>) -> Result<Option<Status>> {
         ctx.data_unchecked::<DataSource>()
