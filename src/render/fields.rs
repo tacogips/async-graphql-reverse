@@ -42,7 +42,7 @@ pub fn fields_info(
     schema: &StructuredSchema,
     config: &RendererConfig,
     context: &RenderContext,
-    field_resolver: Option<&HashMap<String, &ResolverSetting>>,
+    resolver_settings: Option<&HashMap<String, &ResolverSetting>>,
     custom_member_types: &HashSet<String>,
 ) -> Result<FieldsInfo> {
     fields.sort_by(sort_by_line_pos);
@@ -57,7 +57,7 @@ pub fn fields_info(
             schema,
             context,
             config,
-            field_resolver,
+            &resolver_settings,
             custom_member_types,
         )?;
 
@@ -79,7 +79,7 @@ fn convert_field(
     schema: &StructuredSchema,
     render_context: &RenderContext,
     renderer_config: &RendererConfig,
-    field_resolver: Option<&HashMap<String, &ResolverSetting>>,
+    resolver_settings: &Option<&HashMap<String, &ResolverSetting>>,
     custom_member_types: &HashSet<String>,
 ) -> Result<MemberAndMethod> {
     match field_is_method_or_member(
@@ -87,13 +87,19 @@ fn convert_field(
         &schema,
         &render_context,
         &renderer_config,
-        &field_resolver,
+        &resolver_settings,
         &custom_member_types,
     )? {
-        ResolverType::Method => {
-            resolver_with_datasource(field, schema, render_context, renderer_config)
+        ResolverType::Method => resolver_with_datasource(
+            field,
+            schema,
+            render_context,
+            renderer_config,
+            &resolver_settings,
+        ),
+        ResolverType::Field => {
+            resolver_with_member(field, schema, render_context, &resolver_settings)
         }
-        ResolverType::Field => resolver_with_member(field, schema, render_context),
     }
 }
 
@@ -102,12 +108,13 @@ pub fn field_is_method_or_member(
     schema: &StructuredSchema,
     render_context: &RenderContext,
     _renderer_config: &RendererConfig,
-    field_resolver: &Option<&HashMap<String, &ResolverSetting>>,
+    resolver_settings: &Option<&HashMap<String, &ResolverSetting>>,
     custom_member_types: &HashSet<String>,
 ) -> Result<ResolverType> {
-    if let Some(field_resolver) = field_resolver {
-        if let Some(method_type) = resolver_type_in_resolver_setting(&field.name, &field_resolver) {
-            return Ok(method_type);
+    if let Some(field_resolver) = resolver_settings {
+        if let Some(resolver_type) = resolver_type_in_resolver_setting(&field.name, &field_resolver)
+        {
+            return Ok(resolver_type);
         }
     }
 
@@ -177,6 +184,18 @@ fn field_is_a_member(
     }
 }
 
+fn get_attribute_from_resolver_settings(
+    field_name: &str,
+    resolver_settings: &Option<&HashMap<String, &ResolverSetting>>,
+) -> Option<String> {
+    if let Some(field_resolver) = resolver_settings {
+        if let Some(resolver_sertting) = field_resolver.get(field_name) {
+            return resolver_sertting.attribute.clone();
+        }
+    }
+    return None;
+}
+
 /// return resolver method
 ///```
 /// pub async field_name(&self, ctx: &Context<'_>,arg1:Arg1, arg2:Arg2) -> ResultType {
@@ -188,11 +207,21 @@ fn resolver_with_member(
     field: &parse::Field,
     schema: &StructuredSchema,
     context: &RenderContext,
+    resolver_settings: &Option<&HashMap<String, &ResolverSetting>>,
 ) -> Result<MemberAndMethod> {
     let name = field_or_member_name(field);
     let typ = value_type_def_token(&field.typ, &schema, &context)?;
     let member = Some(quote! { pub #name :#typ });
 
+    let attribute = match get_attribute_from_resolver_settings(&field.name, resolver_settings) {
+        Some(attribute) => {
+            let attr = attribute.parse::<TokenStream>().unwrap();
+            quote! {
+                #attr
+            }
+        }
+        None => quote! {},
+    };
     let field_rustdoc = match &field.description {
         Some(desc_token) => {
             let comment: TokenStream = format!("///{}", desc_token).parse().unwrap();
@@ -223,6 +252,7 @@ fn resolver_with_member(
 
     let method = Some(quote! {
         #field_rustdoc
+        #attribute
         pub async fn #name(&self) -> #typ  {
             #resolver_body
         }
@@ -280,6 +310,7 @@ fn resolver_with_datasource(
     schema: &StructuredSchema,
     context: &RenderContext,
     renderer_config: &RendererConfig,
+    resolver_settings: &Option<&HashMap<String, &ResolverSetting>>,
 ) -> Result<MemberAndMethod> {
     let (arg_defs, arg_values) = args_defs_and_values(&field, &schema, "", &context)?;
 
@@ -289,6 +320,15 @@ fn resolver_with_datasource(
         format!("{}_{}", context.parent_name(), field.name_string()).to_snake_case()
     );
 
+    let attribute = match get_attribute_from_resolver_settings(&field.name, resolver_settings) {
+        Some(attribute) => {
+            let attr = attribute.parse::<TokenStream>().unwrap();
+            quote! {
+                #attr
+            }
+        }
+        None => quote! {},
+    };
     let field_rustdoc = match &field.description {
         Some(desc_token) => {
             let comment: TokenStream = format!("///{}", desc_token).parse().unwrap();
@@ -307,6 +347,7 @@ fn resolver_with_datasource(
         .unwrap();
     let method = quote! {
         #field_rustdoc
+        #attribute
         pub async fn #field_name(&self, ctx: &Context<'_> #arg_defs ) -> #typ {
             #data_source_fetch_method.#resolver_method_name (&ctx, self #arg_values).await
         }

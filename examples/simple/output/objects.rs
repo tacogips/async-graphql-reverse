@@ -164,6 +164,7 @@ impl Me {
             .me_search(&ctx, self, text)
             .await
     }
+    #[cfg(feature = "searchSecond")]
     pub async fn search_second(&self) -> Vec<SearchResult> {
         self.search_second.clone()
     }

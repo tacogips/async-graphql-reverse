@@ -34,11 +34,13 @@ pub struct ResolverArgument {
     pub arg_type: String,
     pub arg_description: Option<String>,
 }
+
 #[derive(Deserialize, Debug, Clone)]
 pub struct ResolverSetting {
     pub target_type: String,
     pub target_field: String,
     pub resolver_type: Option<String>,
+    pub attribute: Option<String>,
     pub argument: Option<Vec<ResolverArgument>>,
 }
 
@@ -134,26 +136,24 @@ impl RendererConfig {
         }
     }
 
-    pub fn custom_resolvers(&self) -> HashMap<String, CustomResolvers> {
+    pub fn additional_resolvers(&self) -> HashMap<String, CustomResolvers> {
         match self.additional_resolver.as_ref() {
             None => return HashMap::new(),
-            Some(custom_resolver) => {
-                if custom_resolver.is_empty() {
+            Some(additional_resolver) => {
+                if additional_resolver.is_empty() {
                     return HashMap::new();
                 } else {
                     let mut result = HashMap::<String, CustomResolvers>::new();
-                    for custom_resolver in custom_resolver.iter() {
-                        let custom_resolvers_field = result
+                    for custom_resolver in additional_resolver.iter() {
+                        let custom_resolvers = result
                             .entry(custom_resolver.target_type.to_string())
                             .or_insert(CustomResolvers {
                                 using: vec![],
                                 bodies: vec![],
                             });
-                        custom_resolvers_field
-                            .bodies
-                            .push(custom_resolver.body.clone());
+                        custom_resolvers.bodies.push(custom_resolver.body.clone());
                         if let Some(using) = custom_resolver.using.as_ref() {
-                            custom_resolvers_field.using.push(using.clone());
+                            custom_resolvers.using.push(using.clone());
                         }
                     }
                     result

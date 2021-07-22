@@ -19,6 +19,7 @@ resolver_type = "method"
 target_type = "Me"
 target_field = "searchSecond"
 resolver_type = "field"
+attribute = """#[cfg(feature="searchSecond")]"""
 
 [[resolver]]
 target_type = "Me"
@@ -35,7 +36,6 @@ arg_type="SortDirection"
 [[resolver.argument]]
 arg_name="nextToken"
 arg_type="String"
-
 
 [[additional_resolver]]
 target_type ="Query"
