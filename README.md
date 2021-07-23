@@ -12,8 +12,18 @@ cargo install --git https://github.com/tacogips/async-graphql-reverse --branch m
 # generate schema
 async-graphql-reverse --input-schema examples/simple/input/schema.graphql --output-dir examples/simple/output schema
 ```
+### Lint error
 
+The generated codes would violate the clippy lint rules below.
 
+- [clone_on_copy](https://rust-lang.github.io/rust-clippy/master/#clone_on_copy)
+- [too_many_arguments](https://rust-lang.github.io/rust-clippy/master/#too_many_arguments)
+
+You can suppress the lint errors adding `allow` attribute .
+```rust
+// On top of lib.rs or main.rs of your crate
+#![allow(clippy::clone_on_copy,clippy::too_many_arguments)]
+```
 
 ## Supported Features
 
