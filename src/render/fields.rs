@@ -197,8 +197,8 @@ fn get_attribute_from_resolver_settings(
 }
 
 /// return resolver method
-///```
-/// pub async field_name(&self, ctx: &Context<'_>,arg1:Arg1, arg2:Arg2) -> ResultType {
+///```ignore
+/// pub async fn field_name(&self, ctx: &Context<'_>,arg1:Arg1, arg2:Arg2) -> ResultType {
 ///     ctx.data_unchecked::<DataSource>().#resolver_method_name (&self #arg_values)
 /// }
 ///
@@ -299,8 +299,8 @@ pub fn args_defs_and_values(
 }
 
 /// return resolver method
-///```
-/// pub async field_name(&self, ctx: &Context<'_>,arg1:Arg1, arg2:Arg2) -> ResultType {
+///```ignore
+/// pub async fn field_name(&self, ctx: &Context<'_>,arg1:Arg1, arg2:Arg2) -> ResultType {
 ///     ctx.data_unchecked::<DataSource>().#resolver_method_name (&self #arg_values).await
 /// }
 ///
