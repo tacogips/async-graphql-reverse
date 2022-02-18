@@ -1,8 +1,8 @@
 use async_graphql_reverse::*;
-use clap::Clap;
+use clap::{Parser,Subcommand};
 use env_logger;
 
-#[derive(Clap)]
+#[derive(Parser)]
 #[clap(version = "0.1.19", author = "tacogips")]
 struct Opts {
     #[clap(long, short)]
@@ -18,7 +18,7 @@ struct Opts {
     command: Command,
 }
 
-#[derive(Clap)]
+#[derive(Subcommand)]
 enum Command {
     Schema,
     DataSource,
