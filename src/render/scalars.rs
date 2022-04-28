@@ -61,7 +61,6 @@ pub fn write_scalars(output_dir: &str, structured_schema: &StructuredSchema) -> 
 
 fn scalar_token(scalar: &Scalar, _schema: &StructuredSchema) -> Result<TokenStream> {
     let scalar_name = format_ident!("{}", scalar.name);
-
     let scalar_def = quote! {
 
     #[derive(Debug, Clone)]

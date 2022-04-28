@@ -14,12 +14,17 @@ type Query {
   active: Boolean!
 
   """
-  this is comment for object
+  this is comment for field
   multi line comment:
   """
   type: String
 }
 
+"""
+this is comment for input object
+
+multi line
+"""
 type Mutation {
   createFriendMutation(
     input: CreateFriendMutationInput!
@@ -38,6 +43,10 @@ type CreateFriendMutationPayload
   friend: Friend!
 }
 
+"""
+comment for object
+in multi line
+"""
 input CreateFriendMutationInput {
   userId: ID!
 }

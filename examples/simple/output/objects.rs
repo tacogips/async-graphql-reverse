@@ -22,7 +22,7 @@ impl Query {
             .query_active(&ctx, self)
             .await
     }
-    ///this is comment for object
+    ///this is comment for field
     ///multi line comment:
     pub async fn r#type(&self, ctx: &Context<'_>) -> Result<Option<String>> {
         ctx.data_unchecked::<DataSource>()
@@ -35,6 +35,9 @@ impl Query {
             .await
     }
 }
+///this is comment for input object
+///
+///multi line
 #[derive(Debug, Clone)]
 pub struct Mutation {}
 #[Object]
@@ -59,6 +62,7 @@ impl Subscription {
         self.badge
     }
 }
+///this is comment for object
 #[derive(Debug, Clone)]
 pub struct CreateFriendMutationPayload {}
 #[Object]

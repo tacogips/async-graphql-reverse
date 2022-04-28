@@ -224,12 +224,7 @@ fn resolver_with_member(
         None => quote! {},
     };
     let field_rustdoc = match &field.description {
-        Some(desc_token) => {
-            let comment: TokenStream = format!("///{}", desc_token).parse().unwrap();
-            quote! {
-                #comment
-            }
-        }
+        Some(desc_token) => to_rust_docs_token(desc_token),
         None => quote! {},
     };
 
