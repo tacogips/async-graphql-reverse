@@ -77,6 +77,10 @@ fn input_object_token(
     schema: &StructuredSchema,
 ) -> Result<(TokenStream, Vec<TokenStream>)> {
     let object_name = format_ident!("{}", input_object.name);
+    let comment = match &input_object.description {
+        Some(desc_token) => to_rust_docs_token(desc_token),
+        None => quote! {},
+    };
 
     let context = RenderContext {
         parent: TypeDef::InputObject(input_object),
@@ -89,7 +93,7 @@ fn input_object_token(
 
     let members = separate_by_comma(members);
     let object_def = quote! {
-
+        #comment
         #[derive(Debug, InputObject, Clone)]
         pub struct #object_name{
             #members

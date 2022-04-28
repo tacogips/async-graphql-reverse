@@ -5,6 +5,7 @@ use std::process::Command;
 pub fn fmt_file<P: AsRef<str>>(file_path: P) -> Result<()> {
     let output = Command::new("rustfmt")
         .arg("--edition=2018")
+        .arg("--config=normalize_doc_attributes=true")
         .arg(file_path.as_ref())
         .spawn()
         .expect("rustfmt failed");

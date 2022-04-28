@@ -105,6 +105,10 @@ fn object_token(
     hidden_fields: &HashMap<String, HiddenFields>,
 ) -> Result<(TokenStream, Vec<TokenStream>)> {
     let object_name = format_ident!("{}", object.name);
+    let comment = match &object.description {
+        Some(desc_token) => to_rust_docs_token(desc_token),
+        None => quote! {},
+    };
 
     let context = RenderContext {
         parent: TypeDef::Object(object),
@@ -162,7 +166,7 @@ fn object_token(
     let members = separate_by_comma(members);
     let methods = separate_by_space(methods);
     let object_def = quote! {
-
+        #comment
         #[derive(Debug, Clone)]
         pub struct #object_name{
             #members
