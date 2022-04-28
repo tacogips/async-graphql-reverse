@@ -1,5 +1,6 @@
 use super::super::parse::{self, *};
 use super::argument::*;
+use super::comment::rust_doc_to_token;
 use super::dependencies::*;
 use super::keywords::*;
 use super::sorter::sort_by_line_pos;
@@ -329,13 +330,9 @@ fn resolver_with_datasource(
         }
         None => quote! {},
     };
+
     let field_rustdoc = match &field.description {
-        Some(desc_token) => {
-            let comment: TokenStream = format!("///{}", desc_token).parse().unwrap();
-            quote! {
-                #comment
-            }
-        }
+        Some(desc_token) => rust_doc_to_token(desc_token),
         None => quote! {},
     };
 

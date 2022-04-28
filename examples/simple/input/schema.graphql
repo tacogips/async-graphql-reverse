@@ -12,6 +12,11 @@ type Query {
   "me: Single-line comment"
   me: Me!
   active: Boolean!
+
+  """
+  this is comment for object
+  multi line comment:
+  """
   type: String
 }
 

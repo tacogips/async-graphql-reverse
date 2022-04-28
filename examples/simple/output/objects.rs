@@ -22,6 +22,8 @@ impl Query {
             .query_active(&ctx, self)
             .await
     }
+    #[doc = "this is comment for object"]
+    #[doc = "multi line comment:"]
     pub async fn r#type(&self, ctx: &Context<'_>) -> Result<Option<String>> {
         ctx.data_unchecked::<DataSource>()
             .query_type(&ctx, self)
