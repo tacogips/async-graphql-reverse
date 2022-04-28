@@ -11,7 +11,7 @@ use async_graphql::*;
 pub struct Query {}
 #[Object]
 impl Query {
-    #[doc = "me: Single-line comment"]
+    ///me: Single-line comment
     pub async fn me(&self, ctx: &Context<'_>) -> Result<Me> {
         ctx.data_unchecked::<DataSource>()
             .query_me(&ctx, self)
@@ -22,8 +22,8 @@ impl Query {
             .query_active(&ctx, self)
             .await
     }
-    #[doc = "this is comment for object"]
-    #[doc = "multi line comment:"]
+    ///this is comment for object
+    ///multi line comment:
     pub async fn r#type(&self, ctx: &Context<'_>) -> Result<Option<String>> {
         ctx.data_unchecked::<DataSource>()
             .query_type(&ctx, self)
