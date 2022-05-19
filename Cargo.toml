@@ -1,6 +1,6 @@
 [package]
 name = "async-graphql-reverse"
-version = "0.1.19"
+version = "0.4.0"
 authors = ["tacogips <me@tacogips.me>"]
 edition = "2018"
 
@@ -10,8 +10,8 @@ path = "src/bin/main.rs"
 
 [dependencies]
 anyhow = "1.0"
-async-graphql = "2.9"
-async-graphql-parser = "2.9"
+async-graphql = "4.0"
+async-graphql-parser = "4.0"
 clap = { version = "3.1.0", features = ["derive"] }
 env_logger = "0.8"
 lazy_static = "1.4"

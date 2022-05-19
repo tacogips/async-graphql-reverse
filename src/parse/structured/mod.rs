@@ -19,7 +19,7 @@ pub fn convert_to_structured_schema(
     let mut mutation_name: Option<String> = None;
     let mut subscription_name: Option<String> = None;
 
-    let mut definitions = Definitions::new();
+    let mut definitions = Definitions::default();
 
     for each_node in service_document.definitions {
         match each_node {

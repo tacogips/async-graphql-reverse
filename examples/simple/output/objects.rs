@@ -89,7 +89,7 @@ impl Friend {
             .friend_name(&ctx, self)
             .await
     }
-    pub async fn others(&self, ctx: &Context<'_>) -> Result<Vec<Option<Friend>>> {
+    pub async fn others(&self, ctx: &Context<'_>) -> Result<Option<Vec<Option<Friend>>>> {
         ctx.data_unchecked::<DataSource>()
             .friend_others(&ctx, self)
             .await
@@ -119,7 +119,7 @@ pub struct Me {
     pub age: Option<i64>,
     pub active: Option<bool>,
     pub web: Option<Url>,
-    pub search_second: Vec<SearchResult>,
+    pub search_second: Option<Vec<SearchResult>>,
 }
 #[Object]
 impl Me {
@@ -153,7 +153,10 @@ impl Me {
             .me_friends(&ctx, self, first, limit, sort_direction, next_token)
             .await
     }
-    pub async fn notifications(&self, ctx: &Context<'_>) -> Result<Vec<Option<Notification>>> {
+    pub async fn notifications(
+        &self,
+        ctx: &Context<'_>,
+    ) -> Result<Option<Vec<Option<Notification>>>> {
         ctx.data_unchecked::<DataSource>()
             .me_notifications(&ctx, self)
             .await
@@ -171,7 +174,7 @@ impl Me {
             .await
     }
     #[cfg(feature = "searchSecond")]
-    pub async fn search_second(&self) -> Vec<SearchResult> {
+    pub async fn search_second(&self) -> Option<Vec<SearchResult>> {
         self.search_second.clone()
     }
     pub async fn status(&self, ctx: &Context<'_>) -> Result<Option<Status>> {

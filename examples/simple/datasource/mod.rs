@@ -40,7 +40,7 @@ impl DataSource {
         &self,
         _ctx: &Context<'_>,
         _object: &Friend,
-    ) -> Result<Vec<Option<Friend>>> {
+    ) -> Result<Option<Vec<Option<Friend>>>> {
         unimplemented!("resolver {} is unimpemented yet", "friend_connection_nodes")
     }
 
@@ -67,7 +67,7 @@ impl DataSource {
         &self,
         _ctx: &Context<'_>,
         _object: &Me,
-    ) -> Result<Vec<Option<Notification>>> {
+    ) -> Result<Option<Vec<Option<Notification>>>> {
         unimplemented!("resolver {} is unimpemented yet", "me_notifications")
     }
     pub async fn me_search(
