@@ -102,7 +102,7 @@ dependencies = [
 
 [[package]]
 name = "async-graphql-reverse"
-version = "0.1.19"
+version = "0.4.0"
 dependencies = [
  "anyhow",
  "async-graphql",
