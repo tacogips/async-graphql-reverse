@@ -5,7 +5,7 @@ use paste::paste;
 use std::collections::HashMap;
 use strum::{AsRefStr, EnumString};
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct StructuredSchema {
     pub query_name: Option<String>,
     pub mutation_name: Option<String>,
@@ -37,7 +37,7 @@ pub enum Definition {
     InputObject(InputObject),
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Definitions {
     pub input_objects: HashMap<String, InputObject>,
     pub objects: HashMap<String, Object>,
@@ -48,17 +48,6 @@ pub struct Definitions {
 }
 
 impl Definitions {
-    pub fn new() -> Self {
-        Self {
-            input_objects: HashMap::<String, InputObject>::new(),
-            objects: HashMap::<String, Object>::new(),
-            scalars: HashMap::<String, Scalar>::new(),
-            unions: HashMap::<String, Union>::new(),
-            enums: HashMap::<String, Enum>::new(),
-            interfaces: HashMap::<String, Interface>::new(),
-        }
-    }
-
     pub fn add_definition(&mut self, definition: Definition) {
         match definition {
             Definition::Scalar(v) => {
@@ -82,6 +71,18 @@ impl Definitions {
         }
     }
 }
+impl Default for Definitions {
+    fn default() -> Self {
+        Self {
+            input_objects: HashMap::<String, InputObject>::new(),
+            objects: HashMap::<String, Object>::new(),
+            scalars: HashMap::<String, Scalar>::new(),
+            unions: HashMap::<String, Union>::new(),
+            enums: HashMap::<String, Enum>::new(),
+            interfaces: HashMap::<String, Interface>::new(),
+        }
+    }
+}
 
 pub trait NameString {
     fn name_string(&self) -> String;
@@ -91,13 +92,13 @@ pub trait LinePosition {
     fn line_position(&self) -> usize;
 }
 
-#[derive(Debug, NameString, LinePosition)]
+#[derive(Debug, NameString, LinePosition, PartialEq)]
 pub struct Scalar {
     pub name: String,
     pub line_pos: usize,
 }
 
-#[derive(Debug, NameString, LinePosition)]
+#[derive(Debug, NameString, LinePosition, PartialEq)]
 pub struct Enum {
     pub name: String,
     pub values: Vec<EnumValue>,
@@ -105,13 +106,13 @@ pub struct Enum {
     pub description: Option<String>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct EnumValue {
     pub value_name: String,
     pub description: Option<String>,
 }
 
-#[derive(Debug, NameString, LinePosition)]
+#[derive(Debug, NameString, LinePosition, PartialEq)]
 pub struct Union {
     pub name: String,
     //TODO() rename to concrete_type_names
@@ -120,7 +121,7 @@ pub struct Union {
     pub description: Option<String>,
 }
 
-#[derive(Debug, NameString, LinePosition)]
+#[derive(Debug, NameString, LinePosition, PartialEq)]
 pub struct Interface {
     pub name: String,
     //TODO(tacogips)concrete_type_names  always be empty?
@@ -130,7 +131,7 @@ pub struct Interface {
     pub line_pos: usize,
 }
 
-#[derive(Debug, NameString, LinePosition)]
+#[derive(Debug, NameString, LinePosition, PartialEq)]
 pub struct InputObject {
     pub name: String,
     pub fields: Vec<InputField>,
@@ -138,7 +139,7 @@ pub struct InputObject {
     pub line_pos: usize,
 }
 
-#[derive(Debug, NameString, LinePosition)]
+#[derive(Debug, NameString, LinePosition, PartialEq)]
 pub struct Object {
     pub name: String,
     pub fields: Vec<Field>,
@@ -147,7 +148,7 @@ pub struct Object {
     pub impl_interface_name: Vec<String>,
 }
 
-#[derive(Debug, NameString, LinePosition)]
+#[derive(Debug, NameString, LinePosition, PartialEq)]
 pub struct Field {
     pub name: String,
     pub description: Option<String>,
@@ -156,7 +157,7 @@ pub struct Field {
     pub line_pos: usize,
 }
 
-#[derive(Debug, NameString)]
+#[derive(Debug, NameString, PartialEq)]
 pub struct Argument {
     pub name: String,
     pub typ: ValueTypeDef,
@@ -165,7 +166,7 @@ pub struct Argument {
     //pub default_value: Option<String>,
 }
 
-#[derive(Debug, NameString, LinePosition)]
+#[derive(Debug, NameString, LinePosition, PartialEq)]
 pub struct InputField {
     pub name: String,
     pub description: Option<String>,
@@ -173,7 +174,7 @@ pub struct InputField {
     pub line_pos: usize,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum ValueTypeDef {
     Named(NamedValue),
     List(ListValue),
@@ -188,7 +189,7 @@ impl ValueTypeDef {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct NamedValue {
     pub value_type_name: String,
     pub is_nullable: bool,
@@ -220,7 +221,7 @@ impl NamedValue {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct ListValue {
     pub inner: Box<ValueTypeDef>,
     pub is_nullable: bool,
