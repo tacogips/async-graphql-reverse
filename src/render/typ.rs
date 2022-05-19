@@ -21,8 +21,14 @@ pub fn value_type_def_token(
             }
         }
         parse::ValueTypeDef::List(list_value) => {
+            let nullable = list_value.is_nullable;
             let inner_token = value_type_def_token(&list_value.inner, schema, render_context)?;
-            quote! { Vec<#inner_token> }
+
+            if nullable {
+                quote! { Option<Vec<#inner_token>>}
+            } else {
+                quote! { Vec<#inner_token> }
+            }
         }
     };
     Ok(result)

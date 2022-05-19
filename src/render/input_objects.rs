@@ -102,3 +102,112 @@ fn input_object_token(
     };
     Ok((object_def, dependencies))
 }
+
+#[cfg(test)]
+mod test {
+
+    use super::*;
+    use crate::RendererConfig;
+
+    #[test]
+    pub fn parse_input_1() {
+        let schema = r#"
+        input SampleInput {
+          id: String
+          rec:[Int],
+        }
+        "#;
+
+        let structured_schema = parse_schema(schema, &RendererConfig::default()).unwrap();
+
+        let mut input_objects: Vec<&InputObject> = structured_schema
+            .definitions
+            .input_objects
+            .values()
+            .into_iter()
+            .collect();
+        assert_eq!(1, input_objects.len());
+        let input_object = input_objects.remove(0);
+        let (object_token, _dependencies) =
+            input_object_token(input_object, &structured_schema).unwrap();
+
+        let expected = r#"
+    #[derive(Debug,InputObject,Clone)]
+    pub struct SampleInput{
+        pub id:Option<String>,
+        pub rec:Option<Vec<Option<i64>>>}
+"#;
+        assert_eq!(
+            object_token.to_string().replace(" ", ""),
+            expected.to_string().replace("\n", "").replace(" ", "")
+        );
+    }
+
+    #[test]
+    pub fn parse_input_2() {
+        let schema = r#"
+        input SampleInput {
+          id: String
+          rec:[Int]!,
+        }
+        "#;
+
+        let structured_schema = parse_schema(schema, &RendererConfig::default()).unwrap();
+
+        let mut input_objects: Vec<&InputObject> = structured_schema
+            .definitions
+            .input_objects
+            .values()
+            .into_iter()
+            .collect();
+        assert_eq!(1, input_objects.len());
+        let input_object = input_objects.remove(0);
+        let (object_token, _dependencies) =
+            input_object_token(input_object, &structured_schema).unwrap();
+
+        let expected = r#"
+    #[derive(Debug,InputObject,Clone)]
+    pub struct SampleInput{
+        pub id:Option<String>,
+        pub rec:Vec<Option<i64>>}
+"#;
+        assert_eq!(
+            object_token.to_string().replace(" ", ""),
+            expected.to_string().replace("\n", "").replace(" ", "")
+        );
+    }
+
+    #[test]
+    pub fn parse_input_3() {
+        let schema = r#"
+        input SampleInput {
+          id: String
+          rec:[Int!]!,
+        }
+        "#;
+
+        let structured_schema = parse_schema(schema, &RendererConfig::default()).unwrap();
+
+        let mut input_objects: Vec<&InputObject> = structured_schema
+            .definitions
+            .input_objects
+            .values()
+            .into_iter()
+            .collect();
+        assert_eq!(1, input_objects.len());
+        let input_object = input_objects.remove(0);
+        let (object_token, _dependencies) =
+            input_object_token(input_object, &structured_schema).unwrap();
+
+        let expected = r#"
+    #[derive(Debug,InputObject,Clone)]
+    pub struct SampleInput{
+        pub id:Option<String>,
+        pub rec:Vec<i64>}
+"#;
+        assert_eq!(
+            object_token.to_string().replace(" ", ""),
+            expected.to_string().replace("\n", "").replace(" ", "")
+        );
+    }
+}
