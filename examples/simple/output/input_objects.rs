@@ -11,5 +11,5 @@ pub struct CreateFriendMutationInput {
 pub struct RecursiveInput {
     pub id: Option<String>,
     pub input1: Option<Box<RecursiveInput>>,
-    pub input2: Vec<Option<Box<RecursiveInput>>>,
+    pub input2: Option<Vec<Option<Box<RecursiveInput>>>>,
 }
