@@ -51,12 +51,35 @@ pub struct Additional {
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct Ignore {
-    pub r#enum: Option<String>,
-    pub object: Option<String>,
-    pub input_object: Option<String>,
-    pub union: Option<String>,
-    pub interface: Option<String>,
-    pub scalar: Option<String>,
+    pub r#enum: Option<HashSet<String>>,
+    pub object: Option<HashSet<String>>,
+    pub input_object: Option<HashSet<String>>,
+    pub union: Option<HashSet<String>>,
+    pub interface: Option<HashSet<String>>,
+    pub scalar: Option<HashSet<String>>,
+}
+
+macro_rules! return_false_if_not_empty_set {
+    ($set:expr) => {
+        if let Some(set) = $set {
+            if !set.is_empty() {
+                return false;
+            }
+        }
+    };
+}
+
+impl Ignore {
+    pub fn is_empty(&self) -> bool {
+        return_false_if_not_empty_set!(&self.r#enum);
+        return_false_if_not_empty_set!(&self.object);
+        return_false_if_not_empty_set!(&self.input_object);
+        return_false_if_not_empty_set!(&self.union);
+        return_false_if_not_empty_set!(&self.interface);
+        return_false_if_not_empty_set!(&self.scalar);
+
+        true
+    }
 }
 
 pub type FieldsResolverSetting<'a> = HashMap<String, &'a ResolverSetting>;
@@ -69,7 +92,7 @@ pub struct RendererConfig {
     pub additional_resolver: Option<Vec<AdditionalResolver>>,
     pub hidden_field: Option<Vec<HiddenField>>,
     pub additional: Option<Vec<Additional>>,
-    pub ignore: Option<Vec<Ignore>>,
+    pub ignore: Option<Ignore>,
 }
 
 impl RendererConfig {

@@ -12,6 +12,7 @@ pub struct StructuredSchema {
     pub subscription_name: Option<String>,
     pub definitions: Definitions,
 }
+
 impl StructuredSchema {
     pub fn is_query(&self, obj_name: &str) -> bool {
         match self.query_name.as_ref() {
@@ -71,6 +72,7 @@ impl Definitions {
         }
     }
 }
+
 impl Default for Definitions {
     fn default() -> Self {
         Self {
@@ -187,6 +189,7 @@ impl ValueTypeDef {
             ValueTypeDef::List(v) => v.is_nullable,
         }
     }
+
     pub fn element_value_type_def<'a>(&self, definitions: &'a Definitions) -> Result<TypeDef<'a>> {
         match self {
             ValueTypeDef::Named(v) => v.as_type_def(&definitions),
