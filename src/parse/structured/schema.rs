@@ -207,7 +207,7 @@ pub struct NamedValue {
 impl NamedValue {
     pub fn as_type_def<'a>(&self, definitions: &'a Definitions) -> Result<TypeDef<'a>> {
         let type_name = &self.value_type_name;
-        //TODO(tacogips) what about in the case that object ands input_object has same name?
+        //TODO(tacogips) what about in the case that object and input_object has same name?
         let result = if let Some(primitive) = PRIMITIVE_KIND_MAP.get(type_name.as_str()) {
             TypeDef::Primitive(primitive)
         } else if let Some(input_object) = definitions.input_objects.get(type_name) {
