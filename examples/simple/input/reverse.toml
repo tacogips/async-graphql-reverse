@@ -68,4 +68,5 @@ field_def ="this_is_another_hidden_field: i64"
 
 [ignore]
 object =  ["WillBeIgnoredType"]
+enum =  ["IgnoreStatus"]
 
