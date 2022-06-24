@@ -175,7 +175,7 @@ fn inner_remove_ignored_from_structure(
         }
     }
 
-    // === accumulate remove input object fieldsk =====================================================================
+    // === accumulate remove input object fields =====================================================================
     let mut remove_input_object_field_map: HashMap<String, HashSet<String>> = HashMap::new();
     for input_object in structured_schema.definitions.input_objects.values() {
         for each_field in input_object.fields.iter() {
