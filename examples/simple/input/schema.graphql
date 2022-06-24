@@ -20,6 +20,14 @@ type Query {
   type: String
 }
 
+type WillBeIgnoredType {
+  status: Status!
+}
+
+enum IgnoreStatus {
+  Some
+}
+
 """
 this is comment for input object
 
@@ -49,6 +57,7 @@ in multi line
 """
 input CreateFriendMutationInput {
   userId: ID!
+  ignore_input: WillBeIgnoredType
 }
 
 input RecursiveInput {
@@ -88,6 +97,8 @@ type Me implements User {
   search(text: String!): [SearchResult]!
   searchSecond(text: String!): [SearchResult!]
   status: Status
+  ignore_status: WillBeIgnoredType
+  ignore_enum: IgnoreStatus
 }
 
 type Notification {

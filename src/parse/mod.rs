@@ -1,3 +1,4 @@
+pub mod ignoring;
 pub mod structured;
 use crate::config::RendererConfig;
 pub use structured::*;
@@ -19,12 +20,14 @@ pub fn parse_schema_file(path: &str, config: &RendererConfig) -> Result<Structur
                 schema_body = format!("{} {}", schema_body, merged_additional);
             }
 
-            parse_schema(&schema_body, config)
+            let mut schema = parse_schema(&schema_body, config)?;
+
+            ignoring::remove_ignored_from_structure(&mut schema, &config)?;
+            Ok(schema)
         }
         Err(e) => Err(anyhow!("{}", e)),
     }
 }
-
 pub fn parse_schema(schema_body: &str, config: &RendererConfig) -> Result<StructuredSchema> {
     match async_graphql_parser::parse_schema(schema_body) {
         Ok(schema) => convert_to_structured_schema(schema, config),

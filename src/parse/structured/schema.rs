@@ -12,6 +12,7 @@ pub struct StructuredSchema {
     pub subscription_name: Option<String>,
     pub definitions: Definitions,
 }
+
 impl StructuredSchema {
     pub fn is_query(&self, obj_name: &str) -> bool {
         match self.query_name.as_ref() {
@@ -71,6 +72,7 @@ impl Definitions {
         }
     }
 }
+
 impl Default for Definitions {
     fn default() -> Self {
         Self {
@@ -124,7 +126,7 @@ pub struct Union {
 #[derive(Debug, NameString, LinePosition, PartialEq)]
 pub struct Interface {
     pub name: String,
-    //TODO(tacogips)concrete_type_names  always be empty?
+    //TODO(tacogips) concrete_type_names  always be empty?
     pub concrete_type_names: Vec<String>,
     pub fields: Vec<Field>,
     pub description: Option<String>,
@@ -187,6 +189,13 @@ impl ValueTypeDef {
             ValueTypeDef::List(v) => v.is_nullable,
         }
     }
+
+    pub fn element_value_type_def<'a>(&self, definitions: &'a Definitions) -> Result<TypeDef<'a>> {
+        match self {
+            ValueTypeDef::Named(v) => v.as_type_def(&definitions),
+            ValueTypeDef::List(v) => (*v.inner).element_value_type_def(&definitions),
+        }
+    }
 }
 
 #[derive(Debug, PartialEq)]
@@ -198,7 +207,7 @@ pub struct NamedValue {
 impl NamedValue {
     pub fn as_type_def<'a>(&self, definitions: &'a Definitions) -> Result<TypeDef<'a>> {
         let type_name = &self.value_type_name;
-
+        //TODO(tacogips) what about in the case that object and input_object has same name?
         let result = if let Some(primitive) = PRIMITIVE_KIND_MAP.get(type_name.as_str()) {
             TypeDef::Primitive(primitive)
         } else if let Some(input_object) = definitions.input_objects.get(type_name) {
