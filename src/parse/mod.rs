@@ -21,6 +21,7 @@ pub fn parse_schema_file(path: &str, config: &RendererConfig) -> Result<Structur
             }
 
             let mut schema = parse_schema(&schema_body, config)?;
+
             ignoring::remove_ignored_from_structure(&mut schema, &config)?;
             Ok(schema)
         }

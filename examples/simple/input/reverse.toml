@@ -64,3 +64,8 @@ field_def ="this_is_a_hidden_field: String"
 [[hidden_field]]
 target_type ="Friend"
 field_def ="this_is_another_hidden_field: i64"
+
+
+[ignore]
+object =  ["WillBeIgnoredType"]
+

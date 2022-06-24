@@ -20,6 +20,10 @@ type Query {
   type: String
 }
 
+type WillBeIgnoredType {
+  status: Status!
+}
+
 """
 this is comment for input object
 
@@ -88,6 +92,7 @@ type Me implements User {
   search(text: String!): [SearchResult]!
   searchSecond(text: String!): [SearchResult!]
   status: Status
+  ignore_status: WillBeIgnoredType
 }
 
 type Notification {
