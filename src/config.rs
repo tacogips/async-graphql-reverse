@@ -49,6 +49,16 @@ pub struct Additional {
     pub body: String,
 }
 
+#[derive(Deserialize, Debug, Clone)]
+pub struct Ignore {
+    pub r#enum: Option<String>,
+    pub object: Option<String>,
+    pub input_object: Option<String>,
+    pub union: Option<String>,
+    pub interface: Option<String>,
+    pub scalar: Option<String>,
+}
+
 pub type FieldsResolverSetting<'a> = HashMap<String, &'a ResolverSetting>;
 #[derive(Deserialize, Debug)]
 pub struct RendererConfig {
@@ -59,6 +69,7 @@ pub struct RendererConfig {
     pub additional_resolver: Option<Vec<AdditionalResolver>>,
     pub hidden_field: Option<Vec<HiddenField>>,
     pub additional: Option<Vec<Additional>>,
+    pub ignore: Option<Vec<Ignore>>,
 }
 
 impl RendererConfig {
@@ -179,6 +190,7 @@ impl Default for RendererConfig {
             additional_resolver: None,
             additional: None,
             hidden_field: None,
+            ignore: None,
         }
     }
 }
