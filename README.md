@@ -4,7 +4,7 @@ this repository is heavily inspired by https://github.com/atsuhiro/codegen-for-a
 
 ### install
 ```
-cargo install --git https://github.com/tacogips/async-graphql-reverse --branch master async-graphql-reverse
+cargo install --git https://github.com/tacogips/async-graphql-reverse --branch main async-graphql-reverse
 ```
 
 ### usage
