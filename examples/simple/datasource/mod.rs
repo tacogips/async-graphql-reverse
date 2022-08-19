@@ -1,10 +1,20 @@
 use super::output::*;
 use async_graphql::*;
-pub struct DataSource {}
+pub struct DataSource;
 impl DataSource {
     pub async fn query_me(&self, _ctx: &Context<'_>, _object: &Query) -> Result<Me> {
-        unimplemented!("resolver {} is unimpemented yet", "query_me")
+        Ok(Me {
+            id: ID("this_is_me".to_string()),
+            name: "mememe".to_string(),
+            rank: 1.0,
+            email: None,
+            age: None,
+            active: Some(true),
+            web: None,
+            search_second: None,
+        })
     }
+
     pub async fn query_active(&self, _ctx: &Context<'_>, _object: &Query) -> Result<bool> {
         unimplemented!("resolver {} is unimpemented yet", "query_active")
     }
