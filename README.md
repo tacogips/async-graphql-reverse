@@ -123,7 +123,7 @@ impl Mutation {
 
 ```
 
-Then you should implements Resolvers in a struct (default path: `crate::datasource::Datasource`) and put it into graphql schemas context.
+Then you should implement Resolvers in a struct (default path: `crate::datasource::Datasource`) and put it into graphql schemas context.
 
 
 ```rust
