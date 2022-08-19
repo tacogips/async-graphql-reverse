@@ -207,7 +207,7 @@ async fn graphql_playground() -> impl IntoResponse {
 
 ```
 
-### suppression of some lint error
+### suppression of some lint errors
 
 The generated codes would violate the clippy lint rules like below.
 
