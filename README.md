@@ -8,6 +8,29 @@ cargo install --git https://github.com/tacogips/async-graphql-reverse --branch m
 ```
 
 ### usage
+
+```
+async-graphql-reverse 0.4.0
+tacogips
+
+USAGE:
+    async-graphql-reverse [OPTIONS] --input-schema <INPUT_SCHEMA> --output-dir <OUTPUT_DIR> <SUBCOMMAND>
+
+OPTIONS:
+    -c, --config <CONFIG>
+    -h, --help                           Print help information
+    -i, --input-schema <INPUT_SCHEMA>
+    -o, --output-dir <OUTPUT_DIR>
+    -V, --version                        Print version information
+
+SUBCOMMANDS:
+    data-source
+    help           Print this message or the help of the given subcommand(s)
+    schema
+
+```
+
+#### example
 see ./examples/simple/* for more details.
 
 Say `schema.graphql` is like this.
@@ -37,11 +60,12 @@ type Query {
 // ...
 ```
 
-when you run `async-graphql-reverse`
+when you run `async-graphql-reverse` (the config file is optional)
 
 ```
 # generate schema
-async-graphql-reverse --input-schema examples/simple/input/schema.graphql --output-dir examples/simple/output schema
+async-graphql-reverse --input-schema examples/simple/input/schema.graphql --output-dir examples/simple/output --config examples/simple/input/reverse.toml schema
+
 ```
 
 the following rust codes will be created at `--output-dir`
