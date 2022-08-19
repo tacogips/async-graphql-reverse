@@ -17,6 +17,8 @@ path = "main.rs"
 
 [dependencies]
 anyhow = "1.0"
-async-graphql = "2.9"
+async-graphql = "4.0.10"
 structopt = "0.3"
-
+axum = { version = "0.5.1", features = ["headers"] }
+tokio = { version = "1.8", features = ["macros", "rt-multi-thread"] }
+async-graphql-axum = "4.0.10"
