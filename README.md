@@ -1,4 +1,4 @@
-### Rust code generator from Graphql schema for aysnc-graphql
+### Rust code generator from GraphQL schema for aysnc-graphql
 
 this repository is heavily inspired by https://github.com/atsuhiro/codegen-for-async-graphql
 
