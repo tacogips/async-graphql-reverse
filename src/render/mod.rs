@@ -9,6 +9,7 @@ mod input_fields;
 mod input_objects;
 mod interfaces;
 mod keywords;
+mod linter;
 mod objects;
 mod scalars;
 mod sorter;
@@ -22,6 +23,7 @@ use crate::config::RendererConfig;
 use anyhow::{anyhow, Result};
 use comment::*;
 use files::{fmt_file, pathbuf_to_str};
+use linter::*;
 use quote::*;
 use std::fs::{self, OpenOptions};
 use std::io::{BufWriter, Write};
@@ -107,6 +109,7 @@ fn schema_mod_file(output_dir: &str, info: ModInfo, schema: &StructuredSchema) -
         .expect(format!("failed to open file : {}", file_path_str).as_ref());
     let mut dest_file = BufWriter::new(dest_file);
 
+    dest_file.write(SUPPRESS_LINT.as_bytes())?;
     dest_file.write(FILE_HEADER_COMMENT.as_bytes())?;
     if info.objects_written {
         dest_file.write(

@@ -13,25 +13,23 @@ pub struct Query {}
 impl Query {
     ///me: Single-line comment
     pub async fn me(&self, ctx: &Context<'_>) -> Result<Me> {
-        ctx.data_unchecked::<DataSource>()
-            .query_me(&ctx, self)
-            .await
+        ctx.data_unchecked::<DataSource>().query_me(ctx, self).await
     }
     pub async fn active(&self, ctx: &Context<'_>) -> Result<bool> {
         ctx.data_unchecked::<DataSource>()
-            .query_active(&ctx, self)
+            .query_active(ctx, self)
             .await
     }
     ///this is comment for field
     ///multi line comment:
     pub async fn r#type(&self, ctx: &Context<'_>) -> Result<Option<String>> {
         ctx.data_unchecked::<DataSource>()
-            .query_type(&ctx, self)
+            .query_type(ctx, self)
             .await
     }
     pub async fn custom_resolver(&self, ctx: &Context<'_>) -> Result<Option<String>> {
         ctx.data_unchecked::<DataSource>()
-            .query_custom_resolver(&ctx, self)
+            .query_custom_resolver(ctx, self)
             .await
     }
 }
@@ -48,7 +46,7 @@ impl Mutation {
         input: CreateFriendMutationInput,
     ) -> Result<Option<CreateFriendMutationPayload>> {
         ctx.data_unchecked::<DataSource>()
-            .mutation_create_friend_mutation(&ctx, self, input)
+            .mutation_create_friend_mutation(ctx, self, input)
             .await
     }
 }
@@ -69,7 +67,7 @@ pub struct CreateFriendMutationPayload {}
 impl CreateFriendMutationPayload {
     pub async fn friend(&self, ctx: &Context<'_>) -> Result<Friend> {
         ctx.data_unchecked::<DataSource>()
-            .create_friend_mutation_payload_friend(&ctx, self)
+            .create_friend_mutation_payload_friend(ctx, self)
             .await
     }
 }
@@ -86,12 +84,12 @@ impl Friend {
     }
     pub async fn name(&self, ctx: &Context<'_>) -> Result<String> {
         ctx.data_unchecked::<DataSource>()
-            .friend_name(&ctx, self)
+            .friend_name(ctx, self)
             .await
     }
     pub async fn others(&self, ctx: &Context<'_>) -> Result<Option<Vec<Option<Friend>>>> {
         ctx.data_unchecked::<DataSource>()
-            .friend_others(&ctx, self)
+            .friend_others(ctx, self)
             .await
     }
 }
@@ -106,7 +104,7 @@ impl FriendConnection {
     }
     pub async fn nodes(&self, ctx: &Context<'_>) -> Result<Vec<Option<Friend>>> {
         ctx.data_unchecked::<DataSource>()
-            .friend_connection_nodes(&ctx, self)
+            .friend_connection_nodes(ctx, self)
             .await
     }
 }
@@ -150,7 +148,7 @@ impl Me {
         next_token: Option<String>,
     ) -> Result<FriendConnection> {
         ctx.data_unchecked::<DataSource>()
-            .me_friends(&ctx, self, first, limit, sort_direction, next_token)
+            .me_friends(ctx, self, first, limit, sort_direction, next_token)
             .await
     }
     pub async fn notifications(
@@ -158,7 +156,7 @@ impl Me {
         ctx: &Context<'_>,
     ) -> Result<Option<Vec<Option<Notification>>>> {
         ctx.data_unchecked::<DataSource>()
-            .me_notifications(&ctx, self)
+            .me_notifications(ctx, self)
             .await
     }
     pub async fn web(&self) -> Option<Url> {
@@ -170,7 +168,7 @@ impl Me {
         text: String,
     ) -> Result<Vec<Option<SearchResult>>> {
         ctx.data_unchecked::<DataSource>()
-            .me_search(&ctx, self, text)
+            .me_search(ctx, self, text)
             .await
     }
     #[cfg(feature = "searchSecond")]
@@ -179,7 +177,7 @@ impl Me {
     }
     pub async fn status(&self, ctx: &Context<'_>) -> Result<Option<Status>> {
         ctx.data_unchecked::<DataSource>()
-            .me_status(&ctx, self)
+            .me_status(ctx, self)
             .await
     }
 }
@@ -203,7 +201,7 @@ impl Notification {
         num: Option<i64>,
     ) -> Result<FriendConnection> {
         ctx.data_unchecked::<DataSource>()
-            .notification_friends(&ctx, self, first, num)
+            .notification_friends(ctx, self, first, num)
             .await
     }
 }
