@@ -26,23 +26,23 @@ target_type = "Me"
 target_field = "friends"
 
 [[resolver.argument]]
-arg_name="limit"
-arg_type="Int"
+arg_name = "limit"
+arg_type = "Int"
 
 [[resolver.argument]]
-arg_name="sortDirection"
-arg_type="SortDirection"
+arg_name = "sortDirection"
+arg_type = "SortDirection"
 
 [[resolver.argument]]
-arg_name="nextToken"
-arg_type="String"
+arg_name = "nextToken"
+arg_type = "String"
 
 [[additional_resolver]]
-target_type ="Query"
-body ="""
+target_type = "Query"
+body = """
     pub async fn custom_resolver(&self, ctx: &Context<'_>) -> Result<Option<String>> {
         ctx.data_unchecked::<DataSource>()
-            .query_custom_resolver(&ctx, self)
+            .query_custom_resolver(ctx, self)
             .await
     }
 """
@@ -58,15 +58,14 @@ enum SortDirection {
 
 
 [[hidden_field]]
-target_type ="Friend"
-field_def ="this_is_a_hidden_field: String"
+target_type = "Friend"
+field_def = "this_is_a_hidden_field: String"
 
 [[hidden_field]]
-target_type ="Friend"
-field_def ="this_is_another_hidden_field: i64"
+target_type = "Friend"
+field_def = "this_is_another_hidden_field: i64"
 
 
 [ignore]
-object =  ["WillBeIgnoredType"]
-enum =  ["IgnoreStatus"]
-
+object = ["WillBeIgnoredType"]
+enum = ["IgnoreStatus"]
