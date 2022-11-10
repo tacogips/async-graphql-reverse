@@ -1,20 +1,11 @@
 use super::output::*;
 use async_graphql::*;
 pub struct DataSource;
+
 impl DataSource {
     pub async fn query_me(&self, _ctx: &Context<'_>, _object: &Query) -> Result<Me> {
-        Ok(Me {
-            id: ID("this_is_me".to_string()),
-            name: "mememe".to_string(),
-            rank: 1.0,
-            email: None,
-            age: None,
-            active: Some(true),
-            web: None,
-            search_second: None,
-        })
+        unimplemented!("resolver {} is unimpemented yet", "query_me")
     }
-
     pub async fn query_active(&self, _ctx: &Context<'_>, _object: &Query) -> Result<bool> {
         unimplemented!("resolver {} is unimpemented yet", "query_active")
     }
@@ -45,15 +36,23 @@ impl DataSource {
     pub async fn friend_name(&self, _ctx: &Context<'_>, _object: &Friend) -> Result<String> {
         unimplemented!("resolver {} is unimpemented yet", "friend_name")
     }
-
+    pub async fn friend_sex(&self, _ctx: &Context<'_>, _object: &Friend) -> Result<Sex> {
+        unimplemented!("resolver {} is unimpemented yet", "friend_sex")
+    }
+    pub async fn friend_ttype(
+        &self,
+        _ctx: &Context<'_>,
+        _object: &Friend,
+    ) -> Result<Option<UserType>> {
+        unimplemented!("resolver {} is unimpemented yet", "friend_ttype")
+    }
     pub async fn friend_others(
         &self,
         _ctx: &Context<'_>,
         _object: &Friend,
     ) -> Result<Option<Vec<Option<Friend>>>> {
-        unimplemented!("resolver {} is unimpemented yet", "friend_connection_nodes")
+        unimplemented!("resolver {} is unimpemented yet", "friend_others")
     }
-
     pub async fn friend_connection_nodes(
         &self,
         _ctx: &Context<'_>,
@@ -61,7 +60,12 @@ impl DataSource {
     ) -> Result<Vec<Option<Friend>>> {
         unimplemented!("resolver {} is unimpemented yet", "friend_connection_nodes")
     }
-
+    pub async fn me_sex(&self, _ctx: &Context<'_>, _object: &Me) -> Result<Sex> {
+        unimplemented!("resolver {} is unimpemented yet", "me_sex")
+    }
+    pub async fn me_ttype(&self, _ctx: &Context<'_>, _object: &Me) -> Result<Option<UserType>> {
+        unimplemented!("resolver {} is unimpemented yet", "me_ttype")
+    }
     pub async fn me_friends(
         &self,
         _ctx: &Context<'_>,

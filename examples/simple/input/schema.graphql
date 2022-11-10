@@ -68,14 +68,29 @@ input RecursiveInput {
 
 scalar Url
 
+enum Sex {
+  Male
+  Female
+  Other
+}
+
+enum UserType {
+  NotPayed
+  Payed
+}
+
 interface User {
   id: ID!
   name: String!
+  sex: Sex!
+  ttype: UserType
 }
 
 type Friend implements User {
   id: ID!
   name: String!
+  sex: Sex!
+  ttype: UserType
   others: [Friend]
 }
 
@@ -87,6 +102,8 @@ type FriendConnection {
 type Me implements User {
   id: ID!
   name: String!
+  sex: Sex!
+  ttype: UserType
   rank: Float!
   email: String
   age: Int

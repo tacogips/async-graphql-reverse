@@ -7,6 +7,17 @@ pub enum Status {
     EmailVerified,
 }
 #[derive(Enum, Copy, Clone, Debug, Eq, PartialEq)]
+pub enum Sex {
+    Male,
+    Female,
+    Other,
+}
+#[derive(Enum, Copy, Clone, Debug, Eq, PartialEq)]
+pub enum UserType {
+    NotPayed,
+    Payed,
+}
+#[derive(Enum, Copy, Clone, Debug, Eq, PartialEq)]
 pub enum SortDirection {
     Asc,
     Desc,
