@@ -94,9 +94,9 @@ impl Friend {
             .friend_sex(ctx, self)
             .await
     }
-    pub async fn ttype(&self, ctx: &Context<'_>) -> Result<Option<UserType>> {
+    pub async fn r#type(&self, ctx: &Context<'_>) -> Result<Option<UserType>> {
         ctx.data_unchecked::<DataSource>()
-            .friend_ttype(ctx, self)
+            .friend_type(ctx, self)
             .await
     }
     pub async fn others(&self, ctx: &Context<'_>) -> Result<Option<Vec<Option<Friend>>>> {
@@ -142,8 +142,8 @@ impl Me {
     pub async fn sex(&self, ctx: &Context<'_>) -> Result<Sex> {
         ctx.data_unchecked::<DataSource>().me_sex(ctx, self).await
     }
-    pub async fn ttype(&self, ctx: &Context<'_>) -> Result<Option<UserType>> {
-        ctx.data_unchecked::<DataSource>().me_ttype(ctx, self).await
+    pub async fn r#type(&self, ctx: &Context<'_>) -> Result<Option<UserType>> {
+        ctx.data_unchecked::<DataSource>().me_type(ctx, self).await
     }
     pub async fn rank(&self) -> f64 {
         self.rank

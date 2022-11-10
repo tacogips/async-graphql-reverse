@@ -39,12 +39,12 @@ impl DataSource {
     pub async fn friend_sex(&self, _ctx: &Context<'_>, _object: &Friend) -> Result<Sex> {
         unimplemented!("resolver {} is unimpemented yet", "friend_sex")
     }
-    pub async fn friend_ttype(
+    pub async fn friend_type(
         &self,
         _ctx: &Context<'_>,
         _object: &Friend,
     ) -> Result<Option<UserType>> {
-        unimplemented!("resolver {} is unimpemented yet", "friend_ttype")
+        unimplemented!("resolver {} is unimpemented yet", "friend_type")
     }
     pub async fn friend_others(
         &self,
@@ -63,8 +63,8 @@ impl DataSource {
     pub async fn me_sex(&self, _ctx: &Context<'_>, _object: &Me) -> Result<Sex> {
         unimplemented!("resolver {} is unimpemented yet", "me_sex")
     }
-    pub async fn me_ttype(&self, _ctx: &Context<'_>, _object: &Me) -> Result<Option<UserType>> {
-        unimplemented!("resolver {} is unimpemented yet", "me_ttype")
+    pub async fn me_type(&self, _ctx: &Context<'_>, _object: &Me) -> Result<Option<UserType>> {
+        unimplemented!("resolver {} is unimpemented yet", "me_type")
     }
     pub async fn me_friends(
         &self,

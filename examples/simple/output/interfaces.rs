@@ -10,7 +10,7 @@ use async_graphql::*;
     field(name = "id", type = "ID"),
     field(name = "name", type = "String"),
     field(name = "sex", type = "Sex"),
-    field(name = "ttype", type = "Option < UserType >")
+    field(name = "type", type = "Option<UserType>")
 )]
 #[derive(Debug, Clone)]
 pub enum User {

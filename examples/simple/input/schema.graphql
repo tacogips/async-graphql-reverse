@@ -83,14 +83,14 @@ interface User {
   id: ID!
   name: String!
   sex: Sex!
-  ttype: UserType
+  type: UserType
 }
 
 type Friend implements User {
   id: ID!
   name: String!
   sex: Sex!
-  ttype: UserType
+  type: UserType
   others: [Friend]
 }
 
@@ -103,7 +103,7 @@ type Me implements User {
   id: ID!
   name: String!
   sex: Sex!
-  ttype: UserType
+  type: UserType
   rank: Float!
   email: String
   age: Int
