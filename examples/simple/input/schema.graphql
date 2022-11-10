@@ -81,9 +81,13 @@ enum UserType {
 
 interface User {
   id: ID!
-  name: String!
-  sex: Sex!
   type: UserType
+}
+
+type Me implements User {
+  id: ID!
+  type: UserType
+  email: String
 }
 
 type Friend implements User {
@@ -97,25 +101,6 @@ type Friend implements User {
 type FriendConnection {
   totalCount: Int!
   nodes: [Friend]!
-}
-
-type Me implements User {
-  id: ID!
-  name: String!
-  sex: Sex!
-  type: UserType
-  rank: Float!
-  email: String
-  age: Int
-  active: Boolean
-  friends(first: Int): FriendConnection!
-  notifications: [Notification]
-  web: Url
-  search(text: String!): [SearchResult]!
-  searchSecond(text: String!): [SearchResult!]
-  status: Status
-  ignore_status: WillBeIgnoredType
-  ignore_enum: IgnoreStatus
 }
 
 type Notification {
