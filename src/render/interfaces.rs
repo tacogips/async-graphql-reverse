@@ -8,7 +8,7 @@ use super::typ::*;
 use super::RenderContext;
 use crate::config::RendererConfig;
 use anyhow::Result;
-use heck::CamelCase;
+use heck::{CamelCase, SnakeCase};
 use proc_macro2::TokenStream;
 use quote::*;
 use std::collections::HashMap;
@@ -106,9 +106,10 @@ fn interface_token(
     };
 
     for interface_field in interface.fields.iter() {
-        let field_name = &interface_field.name;
-        let field_type =
-            value_type_def_token(&interface_field.typ, &schema, &render_context)?.to_string();
+        let field_name = &interface_field.name.to_snake_case();
+        let field_type = value_type_def_token(&interface_field.typ, &schema, &render_context)?
+            .to_string()
+            .replace(" ", "");
 
         let field_token = quote! {field(name = #field_name, type = #field_type )};
         interface_field_tokens.push(field_token);

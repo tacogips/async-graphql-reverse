@@ -81,21 +81,25 @@ enum UserType {
 
 interface User {
   id: ID!
-  type: UserType
+  # using rust keyword like 'type' as interface field name will be allowed async-graphql >= 5.0.0
+  userType: UserType
+  isActive: Boolean!
 }
 
 type Me implements User {
   id: ID!
-  type: UserType
+  userType: UserType
   email: String
+  isActive: Boolean!
 }
 
 type Friend implements User {
   id: ID!
   name: String!
   sex: Sex!
-  type: UserType
+  userType: UserType
   others: [Friend]
+  isActive: Boolean!
 }
 
 type FriendConnection {
