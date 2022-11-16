@@ -21,8 +21,8 @@ strum = { version = "0.21.0", features = ["derive"] }
 derive_macro_tool = { path = "derive_macro" }
 proc-macro2 = { version = "1.0", default-features = false }
 quote = "1.0"
-syn = {version = "1.0",features =["extra-traits","clone-impls"]}
+syn = { version = "1.0", features = ["extra-traits", "clone-impls"] }
 heck = "0.3"
 paste = "1.0"
 toml = "0.5"
-serde = {version = "1.0", features = ["derive"]}
+serde = { version = "1.0", features = ["derive"] }
