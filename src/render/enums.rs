@@ -3,6 +3,7 @@ use super::comment::*;
 use super::files::{fmt_file, pathbuf_to_str};
 use super::sorter::sort_by_line_pos;
 use super::tokens::*;
+use crate::config::RendererConfig;
 use anyhow::Result;
 use heck::CamelCase;
 use proc_macro2::TokenStream;
@@ -11,7 +12,11 @@ use std::fs::{self, OpenOptions};
 use std::io::{BufWriter, Write};
 use std::path::PathBuf;
 
-pub fn write_enums(output_dir: &str, structured_schema: &StructuredSchema) -> Result<bool> {
+pub fn write_enums(
+    output_dir: &str,
+    structured_schema: &StructuredSchema,
+    config: &RendererConfig,
+) -> Result<bool> {
     let mut output_file = PathBuf::from(output_dir);
     output_file.push("enums.rs");
     let file_path_str = pathbuf_to_str(&output_file);
@@ -34,7 +39,7 @@ pub fn write_enums(output_dir: &str, structured_schema: &StructuredSchema) -> Re
     let mut enum_defs = Vec::<String>::new();
 
     for each_enum in enums {
-        let enum_token = enum_token(each_enum, &structured_schema)?;
+        let enum_token = enum_token(each_enum, &structured_schema, config)?;
         enum_defs.push(enum_token.to_string());
     }
 
@@ -61,7 +66,11 @@ pub fn write_enums(output_dir: &str, structured_schema: &StructuredSchema) -> Re
     Ok(true)
 }
 
-fn enum_token(enm: &Enum, _schema: &StructuredSchema) -> Result<TokenStream> {
+fn enum_token(
+    enm: &Enum,
+    _schema: &StructuredSchema,
+    config: &RendererConfig,
+) -> Result<TokenStream> {
     let enum_name = format_ident!("{}", enm.name.to_camel_case());
 
     let enums_members: Vec<TokenStream> = enm
@@ -76,11 +85,21 @@ fn enum_token(enm: &Enum, _schema: &StructuredSchema) -> Result<TokenStream> {
         })
         .collect();
 
+    let mut graphql_derive = quote! {};
+    if let Some(default_setting) = config.default_setting.as_ref() {
+        if let Some(enum_rename_items) = default_setting.enum_rename_items.as_ref() {
+            graphql_derive = quote! {
+                #[graphql(rename_items = #enum_rename_items)]
+            }
+        }
+    }
+
     let enum_members = separate_by_comma(enums_members);
 
     let enum_def = quote! {
 
         #[derive(Enum, Copy, Clone, Debug, Eq, PartialEq)]
+        #graphql_derive
         pub enum #enum_name{
             #enum_members
         }

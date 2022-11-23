@@ -82,10 +82,16 @@ impl Ignore {
     }
 }
 
-pub type FieldsResolverSetting<'a> = HashMap<String, &'a ResolverSetting>;
 #[derive(Deserialize, Debug)]
+pub struct DefaultSetting {
+    pub enum_rename_items: Option<String>,
+}
+
+pub type FieldsResolverSetting<'a> = HashMap<String, &'a ResolverSetting>;
+#[derive(Deserialize, Default, Debug)]
 pub struct RendererConfig {
     pub using: Option<HashMap<String, String>>,
+    pub default_setting: Option<DefaultSetting>,
     pub default_data_source_fetch_method: Option<String>,
     pub custom_member_types: Option<Vec<String>>,
     pub resolver: Option<Vec<ResolverSetting>>,
@@ -200,20 +206,5 @@ impl RendererConfig {
         let toml_str: String = fs::read_to_string(file_path)?;
         let config: RendererConfig = toml::from_str(&toml_str).map_err(|e| anyhow!("{}", e))?;
         Ok(config)
-    }
-}
-
-impl Default for RendererConfig {
-    fn default() -> Self {
-        Self {
-            using: None,
-            custom_member_types: None,
-            default_data_source_fetch_method: None,
-            resolver: None,
-            additional_resolver: None,
-            additional: None,
-            hidden_field: None,
-            ignore: None,
-        }
     }
 }

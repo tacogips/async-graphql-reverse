@@ -5,6 +5,9 @@ default_data_source_fetch_method = "ctx.data_unchecked::<DataSource>()"
 [using]
 data_source = "use crate::datasource::DataSource"
 
+[default_setting]
+enum_rename_items = "camelCase"
+
 [[resolver]]
 target_type = "Query"
 target_field = "type"
