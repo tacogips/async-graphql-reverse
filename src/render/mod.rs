@@ -78,7 +78,7 @@ pub fn output_schema(
     let union_written = unions::write_unions(output_dir, &structured_schema)?;
     let scalar_written = scalars::write_scalars(output_dir, &structured_schema)?;
     let interface_written = interfaces::write_interfaces(output_dir, &structured_schema, &config)?;
-    let enum_written = enums::write_enums(output_dir, &structured_schema)?;
+    let enum_written = enums::write_enums(output_dir, &structured_schema, &config)?;
 
     let log = ModInfo {
         objects_written,
