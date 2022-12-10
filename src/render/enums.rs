@@ -101,7 +101,7 @@ fn enum_token(
             }
         }
     }
-    if there_is_specific_rename_item {
+    if !there_is_specific_rename_item {
         if let Some(default_setting) = config.default_setting.as_ref() {
             if let Some(enum_rename_items) = default_setting.enum_rename_items.as_ref() {
                 graphql_derive = quote! {

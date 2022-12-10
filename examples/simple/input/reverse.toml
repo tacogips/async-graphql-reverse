@@ -10,7 +10,7 @@ enum_rename_items = "camelCase"
 
 
 [[enum]]
-target_enum = "IgnoreStatus"
+target_enum = "UserType"
 rename_items = "UPPERCASE"
 
 [[resolver]]
