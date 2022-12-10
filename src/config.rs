@@ -21,6 +21,12 @@ pub struct HiddenFields {
     pub field_defs: Vec<String>,
 }
 
+#[derive(Deserialize, Clone, Debug)]
+pub struct EnumSetting {
+    pub target_enum: String,
+    pub rename_items: Option<String>,
+}
+
 #[derive(Deserialize, Debug)]
 pub struct HiddenField {
     pub target_type: String,
@@ -99,6 +105,7 @@ pub struct RendererConfig {
     pub hidden_field: Option<Vec<HiddenField>>,
     pub additional: Option<Vec<Additional>>,
     pub ignore: Option<Ignore>,
+    pub r#enum: Option<Vec<EnumSetting>>,
 }
 
 impl RendererConfig {
@@ -143,6 +150,22 @@ impl RendererConfig {
                             .insert(each_resolver.target_field.to_string(), each_resolver);
                     }
                     result
+                }
+            }
+        }
+    }
+
+    pub fn enum_settings(&self) -> HashMap<String, EnumSetting> {
+        match self.r#enum.as_ref() {
+            None => HashMap::new(),
+            Some(enum_settings) => {
+                if enum_settings.is_empty() {
+                    HashMap::new()
+                } else {
+                    enum_settings
+                        .into_iter()
+                        .map(|each_enum| (each_enum.target_enum.to_string(), each_enum.clone()))
+                        .collect::<HashMap<String, EnumSetting>>()
                 }
             }
         }
