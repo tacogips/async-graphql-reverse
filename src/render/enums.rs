@@ -3,11 +3,12 @@ use super::comment::*;
 use super::files::{fmt_file, pathbuf_to_str};
 use super::sorter::sort_by_line_pos;
 use super::tokens::*;
-use crate::config::RendererConfig;
+use crate::config::{EnumSetting, RendererConfig};
 use anyhow::Result;
 use heck::CamelCase;
 use proc_macro2::TokenStream;
 use quote::*;
+use std::collections::HashMap;
 use std::fs::{self, OpenOptions};
 use std::io::{BufWriter, Write};
 use std::path::PathBuf;
@@ -38,8 +39,10 @@ pub fn write_enums(
 
     let mut enum_defs = Vec::<String>::new();
 
+    let enum_settings = config.enum_settings();
+
     for each_enum in enums {
-        let enum_token = enum_token(each_enum, &structured_schema, config)?;
+        let enum_token = enum_token(each_enum, &structured_schema, config, &enum_settings)?;
         enum_defs.push(enum_token.to_string());
     }
 
@@ -70,6 +73,7 @@ fn enum_token(
     enm: &Enum,
     _schema: &StructuredSchema,
     config: &RendererConfig,
+    enum_settings: &HashMap<String, EnumSetting>,
 ) -> Result<TokenStream> {
     let enum_name = format_ident!("{}", enm.name.to_camel_case());
 
@@ -86,10 +90,23 @@ fn enum_token(
         .collect();
 
     let mut graphql_derive = quote! {};
-    if let Some(default_setting) = config.default_setting.as_ref() {
-        if let Some(enum_rename_items) = default_setting.enum_rename_items.as_ref() {
+
+    // TODO(tacogips) using there_is_specific_rename_item is naive implementation. make this concise with macro or something
+    let mut there_is_specific_rename_item = false;
+    if let Some(specific_enum_setting) = enum_settings.get(&enm.name.to_camel_case()) {
+        if let Some(specifig_rename_item) = &specific_enum_setting.rename_items {
+            there_is_specific_rename_item = true;
             graphql_derive = quote! {
-                #[graphql(rename_items = #enum_rename_items)]
+                #[graphql(rename_items = #specifig_rename_item)]
+            }
+        }
+    }
+    if !there_is_specific_rename_item {
+        if let Some(default_setting) = config.default_setting.as_ref() {
+            if let Some(enum_rename_items) = default_setting.enum_rename_items.as_ref() {
+                graphql_derive = quote! {
+                    #[graphql(rename_items = #enum_rename_items)]
+                }
             }
         }
     }
