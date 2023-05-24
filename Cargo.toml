@@ -4,6 +4,10 @@ version = "0.4.0"
 authors = ["tacogips <me@tacogips.me>"]
 edition = "2018"
 
+
+# TODO(tacogips) is excluding apparantly not working when cargo test?
+exclude = ["examples"]
+
 [[bin]]
 name = "async-graphql-reverse"
 path = "src/bin/main.rs"
@@ -14,6 +18,8 @@ async-graphql = "4.0"
 async-graphql-parser = "4.0"
 clap = { version = "3.1.0", features = ["derive"] }
 env_logger = "0.8"
+# TODO(tacogips) lazy_static would be deprecated after rust 1.70
+# https://github.com/rust-lang-nursery/lazy-static.rs/issues/214
 lazy_static = "1.4"
 log = "0.4"
 structopt = "0.3"
@@ -26,3 +32,9 @@ heck = "0.3"
 paste = "1.0"
 toml = "0.5"
 serde = { version = "1.0", features = ["derive"] }
+
+
+[dev-dependencies]
+axum = { version = "0.5.1", features = ["headers"] }
+tokio = { version = "1.8", features = ["macros", "rt-multi-thread"] }
+async-graphql-axum = "4.0.10"

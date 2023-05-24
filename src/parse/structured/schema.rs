@@ -3,6 +3,7 @@ use derive_macro_tool::{LinePosition, NameString};
 use lazy_static::lazy_static;
 use paste::paste;
 use std::collections::HashMap;
+use std::collections::HashSet;
 use strum::{AsRefStr, EnumString};
 
 #[derive(Debug, PartialEq)]
@@ -52,7 +53,9 @@ impl Definitions {
     pub fn add_definition(&mut self, definition: Definition) {
         match definition {
             Definition::Scalar(v) => {
-                self.scalars.insert(v.name_string(), v);
+                if !PRESERVED_SCALARS.contains(v.name.as_str()) {
+                    self.scalars.insert(v.name_string(), v);
+                }
             }
             Definition::Object(v) => {
                 self.objects.insert(v.name_string(), v);
@@ -223,7 +226,11 @@ impl NamedValue {
         } else if let Some(interface) = definitions.interfaces.get(type_name) {
             TypeDef::Interface(interface)
         } else {
-            return Err(anyhow!("type: {} not defined", type_name));
+            if is_preserverd_type(type_name) {
+                TypeDef::AsyncGraphqlPreserved(type_name.clone())
+            } else {
+                return Err(anyhow!("type: {} not defined", type_name));
+            }
         };
 
         Ok(result)
@@ -259,6 +266,7 @@ pub enum TypeDef<'a> {
     Scalar(&'a Scalar),
     Union(&'a Union),
     Interface(&'a Interface),
+    AsyncGraphqlPreserved(String),
 }
 impl<'a> TypeDef<'a> {
     is! {Primitive}
@@ -278,6 +286,7 @@ impl<'a> TypeDef<'a> {
             TypeDef::Scalar(v) => v.name.to_string(),
             TypeDef::Union(v) => v.name.to_string(),
             TypeDef::Interface(v) => v.name.to_string(),
+            TypeDef::AsyncGraphqlPreserved(name) => name.clone(),
         }
     }
 }
@@ -318,6 +327,15 @@ lazy_static! {
         m.insert(PrimitiveKind::ID.as_ref(), PrimitiveKind::ID);
         m
     };
+    pub static ref PRESERVED_SCALARS: HashSet<&'static str> = {
+        let mut s = HashSet::new();
+        s.insert("Upload");
+        s
+    };
+}
+
+fn is_preserverd_type(type_name: &str) -> bool {
+    PRESERVED_SCALARS.contains(&type_name)
 }
 
 pub fn source_type_def<'a>(

@@ -94,7 +94,7 @@ fn input_object_token(
     let members = separate_by_comma(members);
     let object_def = quote! {
         #comment
-        #[derive(Debug, InputObject, Clone)]
+        #[derive(InputObject)]
         pub struct #object_name{
             #members
         }
@@ -132,7 +132,7 @@ mod test {
             input_object_token(input_object, &structured_schema).unwrap();
 
         let expected = r#"
-    #[derive(Debug,InputObject,Clone)]
+    #[derive(InputObject)]
     pub struct SampleInput{
         pub id:Option<String>,
         pub rec:Option<Vec<Option<i64>>>}
@@ -166,7 +166,7 @@ mod test {
             input_object_token(input_object, &structured_schema).unwrap();
 
         let expected = r#"
-    #[derive(Debug,InputObject,Clone)]
+    #[derive(InputObject)]
     pub struct SampleInput{
         pub id:Option<String>,
         pub rec:Vec<Option<i64>>}
@@ -200,7 +200,7 @@ mod test {
             input_object_token(input_object, &structured_schema).unwrap();
 
         let expected = r#"
-    #[derive(Debug,InputObject,Clone)]
+    #[derive(InputObject)]
     pub struct SampleInput{
         pub id:Option<String>,
         pub rec:Vec<i64>}

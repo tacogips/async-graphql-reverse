@@ -58,6 +58,11 @@ pub fn dependency(
             let name = format_ident!("{}", interface.name_string());
             quote! { use super::interfaces::#name }
         }
+
+        parse::TypeDef::AsyncGraphqlPreserved(_) => {
+            // imported by use ayncgraphql::*;
+            return Ok(vec![]);
+        }
     };
     Ok(vec![result])
 }

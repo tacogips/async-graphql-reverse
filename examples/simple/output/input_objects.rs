@@ -3,11 +3,12 @@
 use async_graphql::*;
 ///comment for object
 ///in multi line
-#[derive(Debug, InputObject, Clone)]
+#[derive(InputObject)]
 pub struct CreateFriendMutationInput {
     pub user_id: ID,
+    pub large_data: Upload,
 }
-#[derive(Debug, InputObject, Clone)]
+#[derive(InputObject)]
 pub struct RecursiveInput {
     pub id: Option<String>,
     pub input1: Option<Box<RecursiveInput>>,
