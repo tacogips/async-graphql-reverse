@@ -2,7 +2,7 @@ use super::super::parse::*;
 use super::comment::*;
 use super::dependencies::*;
 use super::files::{fmt_file, pathbuf_to_str};
-use super::sorter::sort_by_line_pos;
+use super::sorter::sort_by_line_pos_and_name;
 use super::tokens::*;
 use super::RenderContext;
 use anyhow::Result;
@@ -32,7 +32,7 @@ pub fn write_unions(output_dir: &str, structured_schema: &StructuredSchema) -> R
     if unions.is_empty() {
         return Ok(false);
     }
-    unions.sort_by(sort_by_line_pos);
+    unions.sort_by(sort_by_line_pos_and_name);
 
     let mut all_dependencies = HashSet::<String>::new();
     let mut union_defs = Vec::<String>::new();

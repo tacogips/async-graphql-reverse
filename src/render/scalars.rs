@@ -1,7 +1,7 @@
 use super::super::parse::*;
 use super::comment::*;
 use super::files::{fmt_file, pathbuf_to_str};
-use super::sorter::sort_by_line_pos;
+use super::sorter::sort_by_line_pos_and_name;
 use anyhow::Result;
 use proc_macro2::TokenStream;
 use quote::*;
@@ -27,7 +27,7 @@ pub fn write_scalars(output_dir: &str, structured_schema: &StructuredSchema) -> 
     if scalars.is_empty() {
         return Ok(false);
     }
-    scalars.sort_by(sort_by_line_pos);
+    scalars.sort_by(sort_by_line_pos_and_name);
 
     let mut scalar_defs = Vec::<String>::new();
 

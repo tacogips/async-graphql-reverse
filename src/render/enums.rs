@@ -1,7 +1,7 @@
 use super::super::parse::*;
 use super::comment::*;
 use super::files::{fmt_file, pathbuf_to_str};
-use super::sorter::sort_by_line_pos;
+use super::sorter::sort_by_line_pos_and_name;
 use super::tokens::*;
 use crate::config::{EnumSetting, RendererConfig};
 use anyhow::Result;
@@ -35,7 +35,7 @@ pub fn write_enums(
     if enums.is_empty() {
         return Ok(false);
     }
-    enums.sort_by(sort_by_line_pos);
+    enums.sort_by(sort_by_line_pos_and_name);
 
     let mut enum_defs = Vec::<String>::new();
 

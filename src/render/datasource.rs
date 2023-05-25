@@ -1,7 +1,7 @@
 use super::super::parse::{self, *};
 use super::fields::*;
 use super::fields::{field_is_method_or_member, ResolverType};
-use super::sorter::sort_by_line_pos;
+use super::sorter::sort_by_line_pos_and_name;
 use super::typ::*;
 use super::RenderContext;
 use crate::config::RendererConfig;
@@ -18,7 +18,7 @@ pub fn empty_datasource_methods(
     if objects.is_empty() {
         return Ok(vec![]);
     }
-    objects.sort_by(sort_by_line_pos);
+    objects.sort_by(sort_by_line_pos_and_name);
 
     let custom_member_types = render_config.custom_member_types();
 
