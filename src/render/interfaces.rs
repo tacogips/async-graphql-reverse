@@ -2,7 +2,7 @@ use super::super::parse::*;
 use super::comment::*;
 use super::dependencies::*;
 use super::files::{fmt_file, pathbuf_to_str};
-use super::sorter::sort_by_line_pos;
+use super::sorter::sort_by_line_pos_and_name;
 use super::tokens::*;
 use super::typ::*;
 use super::RenderContext;
@@ -39,7 +39,7 @@ pub fn write_interfaces(
     if interfaces.is_empty() {
         return Ok(false);
     }
-    interfaces.sort_by(sort_by_line_pos);
+    interfaces.sort_by(sort_by_line_pos_and_name);
 
     let mut all_dependencies = HashSet::<String>::new();
     let mut interface_defs = Vec::<String>::new();

@@ -1,7 +1,7 @@
 use super::super::parse::{self, *};
 use super::dependencies::*;
 use super::keywords::*;
-use super::sorter::sort_by_line_pos;
+use super::sorter::sort_by_line_pos_and_name;
 use super::typ::*;
 use super::RenderContext;
 use anyhow::Result;
@@ -33,7 +33,7 @@ pub fn input_fields_info(
     schema: &StructuredSchema,
     context: &RenderContext,
 ) -> Result<InputFieldsInfo> {
-    fields.sort_by(sort_by_line_pos);
+    fields.sort_by(sort_by_line_pos_and_name);
     let mut result = InputFieldsInfo::new();
     for field in fields.iter() {
         let InputMember {

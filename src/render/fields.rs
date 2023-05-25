@@ -3,7 +3,7 @@ use super::argument::*;
 use super::comment::to_rust_docs_token;
 use super::dependencies::*;
 use super::keywords::*;
-use super::sorter::sort_by_line_pos;
+use super::sorter::sort_by_line_pos_and_name;
 use super::tokens::*;
 use super::typ::*;
 use super::RenderContext;
@@ -46,7 +46,7 @@ pub fn fields_info(
     resolver_settings: Option<&HashMap<String, &ResolverSetting>>,
     custom_member_types: &HashSet<String>,
 ) -> Result<FieldsInfo> {
-    fields.sort_by(sort_by_line_pos);
+    fields.sort_by(sort_by_line_pos_and_name);
     let mut result = FieldsInfo::new();
     for field in fields.iter() {
         let MemberAndMethod {

@@ -1,12 +1,12 @@
 use super::super::parse::*;
 use std::cmp::Ordering;
 
-pub fn sort_by_line_pos<T>(l: &T, r: &T) -> Ordering
+pub fn sort_by_line_pos_and_name<T>(l: &T, r: &T) -> Ordering
 where
-    T: LinePosition,
+    T: LinePosition + NameString,
 {
     if l.line_position() == r.line_position() {
-        Ordering::Equal
+        l.name_string().cmp(&r.name_string())
     } else if l.line_position() < r.line_position() {
         Ordering::Less
     } else {

@@ -3,7 +3,7 @@ use super::comment::*;
 use super::dependencies::*;
 use super::files::{fmt_file, pathbuf_to_str};
 use super::input_fields::*;
-use super::sorter::sort_by_line_pos;
+use super::sorter::sort_by_line_pos_and_name;
 use super::tokens::*;
 use super::RenderContext;
 use anyhow::Result;
@@ -32,7 +32,7 @@ pub fn write_input_objects(output_dir: &str, structured_schema: &StructuredSchem
     if input_objects.is_empty() {
         return Ok(false);
     }
-    input_objects.sort_by(sort_by_line_pos);
+    input_objects.sort_by(sort_by_line_pos_and_name);
 
     let mut all_dependencies = HashSet::<String>::new();
     let mut object_defs = Vec::<String>::new();

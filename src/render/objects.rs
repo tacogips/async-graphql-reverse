@@ -3,7 +3,7 @@ use super::comment::*;
 use super::dependencies::*;
 use super::fields::*;
 use super::files::{fmt_file, pathbuf_to_str};
-use super::sorter::sort_by_line_pos;
+use super::sorter::sort_by_line_pos_and_name;
 use super::tokens::*;
 use super::RenderContext;
 use crate::config::*;
@@ -37,7 +37,7 @@ pub fn write_objects(
     if objects.is_empty() {
         return Ok(false);
     }
-    objects.sort_by(sort_by_line_pos);
+    objects.sort_by(sort_by_line_pos_and_name);
 
     let mut all_dependencies = HashSet::<String>::new();
     let mut object_defs = Vec::<String>::new();
