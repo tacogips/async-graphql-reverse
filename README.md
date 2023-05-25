@@ -10,7 +10,7 @@ cargo install --git https://github.com/tacogips/async-graphql-reverse --branch m
 ### usage
 
 ```
-async-graphql-reverse 0.4.0
+async-graphql-reverse 0.5.0
 tacogips
 
 USAGE:
