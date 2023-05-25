@@ -96,6 +96,7 @@ impl Me {
 pub struct Friend {
     pub id: ID,
     pub is_active: bool,
+    pub favo_rate: i64,
     this_is_a_hidden_field: String,
     this_is_another_hidden_field: i64,
 }
@@ -126,6 +127,9 @@ impl Friend {
     }
     pub async fn is_active(&self) -> bool {
         self.is_active
+    }
+    pub async fn favo_rate(&self) -> i64 {
+        self.favo_rate
     }
 }
 #[derive(Debug, Clone)]

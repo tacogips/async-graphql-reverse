@@ -51,6 +51,7 @@ type CreateFriendMutationPayload
   friend: Friend!
 }
 
+scalar Upload
 """
 comment for object
 in multi line
@@ -58,6 +59,7 @@ in multi line
 input CreateFriendMutationInput {
   userId: ID!
   ignore_input: WillBeIgnoredType
+  large_data: String
 }
 
 input RecursiveInput {
@@ -100,6 +102,7 @@ type Friend implements User {
   userType: UserType
   others: [Friend]
   isActive: Boolean!
+  favo_rate: Int!
 }
 
 type FriendConnection {

@@ -91,6 +91,11 @@ fn type_def_token(
             let name = format_ident!("{}", interface.name_string());
             quote! { #name }
         }
+
+        parse::TypeDef::AsyncGraphqlPreserved(type_name) => {
+            let name = format_ident!("{}", type_name);
+            quote! { #name }
+        }
     };
     Ok(result)
 }

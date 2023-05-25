@@ -2,7 +2,7 @@ pub mod schema;
 use crate::config::*;
 pub use schema::*;
 
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 use async_graphql_parser::{types as async_gql_types, Positioned as AsyncGqlPositioned};
 
 macro_rules! node_as_string {
@@ -64,19 +64,25 @@ fn convert_type_def(
     let line_pos = type_def.pos.line;
     let type_def = type_def.node;
 
-    let name = node_as_string!(type_def.name);
+    let type_def_name = node_as_string!(type_def.name);
     let description = type_def.description.map(|desc| node_as_string!(desc));
     let resolver_settings = config.resolver_setting();
+    let field_settings = config.field_setting();
 
     match type_def.kind {
-        async_gql_types::TypeKind::Scalar => Definition::Scalar(Scalar { name, line_pos }),
+        async_gql_types::TypeKind::Scalar => Definition::Scalar(Scalar {
+            name: type_def_name,
+            line_pos,
+        }),
         async_gql_types::TypeKind::Object(object_type) => {
-            let fields_resolver_setting = resolver_settings.get(&name);
+            let fields_resolver_setting = resolver_settings.get(&type_def_name);
+            let fields_setting = field_settings.get(&type_def_name);
 
-            let fields = convert_fields(&object_type.fields, fields_resolver_setting);
+            let fields =
+                convert_fields(&object_type.fields, fields_setting, fields_resolver_setting);
 
             let object = Object {
-                name,
+                name: type_def_name,
                 fields,
                 description,
                 line_pos,
@@ -90,10 +96,11 @@ fn convert_type_def(
             Definition::Object(object)
         }
         async_gql_types::TypeKind::Interface(interface) => {
-            let fields = convert_fields(&interface.fields, None);
+            let fields_setting = field_settings.get(&type_def_name);
+            let fields = convert_fields(&interface.fields, fields_setting, None);
 
             let intf = Interface {
-                name,
+                name: type_def_name,
                 //TODO(tacogips)concrete_type_names  always be empty?
                 concrete_type_names: interface
                     .implements
@@ -120,7 +127,7 @@ fn convert_type_def(
                 .collect();
 
             let union = Union {
-                name,
+                name: type_def_name,
                 type_names,
                 line_pos,
                 description,
@@ -136,7 +143,7 @@ fn convert_type_def(
                 .collect();
 
             let enum_def = Enum {
-                name,
+                name: type_def_name,
                 values: enum_values,
                 line_pos,
                 description,
@@ -145,14 +152,15 @@ fn convert_type_def(
             Definition::Enum(enum_def)
         }
         async_gql_types::TypeKind::InputObject(input_type) => {
+            let fields_setting = field_settings.get(&type_def_name);
             let input_fields = input_type
                 .fields
                 .iter()
-                .map(|input_field| convert_input_field_def(input_field))
+                .map(|input_field| convert_input_field_def(input_field, fields_setting))
                 .collect();
 
             let input_object = InputObject {
-                name,
+                name: type_def_name,
                 fields: input_fields,
                 description,
                 line_pos,
@@ -183,16 +191,35 @@ fn convert_enum_value(
 
 fn convert_fields(
     fields: &Vec<AsyncGqlPositioned<async_gql_types::FieldDefinition>>,
+    fields_setting: Option<&FieldsSetting>,
     fields_resolver_setting: Option<&FieldsResolverSetting>,
 ) -> Vec<Field> {
     fields
         .iter()
-        .map(|field| convert_field_def(field, fields_resolver_setting))
+        .map(|field| convert_object_field_def(field, fields_setting, fields_resolver_setting))
         .collect()
 }
 
-fn convert_field_def(
+fn maybe_replace_field(
+    field_name: &str,
+    fields_settings: Option<&FieldsSetting>,
+) -> Result<Option<async_gql_types::Type>> {
+    if let Some(fields_settings) = fields_settings {
+        if let Some(fields_setting) = fields_settings.get(field_name) {
+            if let Some(replace_field_type) = &fields_setting.replace_field_type {
+                let repalced_type = async_gql_types::Type::new(&replace_field_type).ok_or(
+                    anyhow!("invalid replace field type: {}", replace_field_type),
+                )?;
+                return Ok(Some(repalced_type));
+            }
+        }
+    }
+    Ok(None)
+}
+
+fn convert_object_field_def(
     field_def: &AsyncGqlPositioned<async_gql_types::FieldDefinition>,
+    fields_setting: Option<&FieldsSetting>,
     fields_resolver_setting: Option<&FieldsResolverSetting>,
 ) -> Field {
     let line_pos = field_def.pos.line;
@@ -210,11 +237,9 @@ fn convert_field_def(
         .iter()
         .map(|arg| convert_argument(arg))
         .collect();
-
+    let field_name = &node_as_string!(field_def.name);
     if let Some(fields_resolver_setting) = fields_resolver_setting {
-        if let Some(resolver_setting) =
-            fields_resolver_setting.get(&node_as_string!(field_def.name))
-        {
+        if let Some(resolver_setting) = fields_resolver_setting.get(field_name) {
             if let Some(args) = &resolver_setting.argument {
                 let mut additional_args: Vec<Argument> = args
                     .iter()
@@ -224,10 +249,16 @@ fn convert_field_def(
             }
         }
     }
+
+    let field_type = match maybe_replace_field(field_name, fields_setting).unwrap() {
+        Some(replaced_field) => replaced_field,
+        None => field_def.ty.node,
+    };
+
     Field {
         name: node_as_string!(field_def.name),
         description: field_def.description.map(|desc| node_as_string!(desc)),
-        typ: convert_type_to_value(field_def.ty.node),
+        typ: convert_type_to_value(field_type),
         arguments,
         line_pos,
     }
@@ -235,16 +266,23 @@ fn convert_field_def(
 
 pub fn convert_input_field_def(
     input_field_def: &AsyncGqlPositioned<async_gql_types::InputValueDefinition>,
+    fields_setting: Option<&FieldsSetting>,
 ) -> InputField {
     let line_pos = input_field_def.pos.line;
     let input_field_def = input_field_def.node.clone();
+
+    let field_name = node_as_string!(input_field_def.name);
+    let field_type = match maybe_replace_field(&field_name, fields_setting).unwrap() {
+        Some(replaced_field) => replaced_field,
+        None => input_field_def.ty.node,
+    };
 
     InputField {
         name: node_as_string!(input_field_def.name),
         description: input_field_def
             .description
             .map(|desc| node_as_string!(desc)),
-        typ: convert_type_to_value(input_field_def.ty.node),
+        typ: convert_type_to_value(field_type),
         line_pos,
     }
 }
@@ -278,6 +316,7 @@ fn convert_argument(
 fn convert_argument_from_config_arg(arg: &ResolverArgument) -> Argument {
     let typ = async_gql_types::Type::new(&arg.arg_type)
         .unwrap_or_else(|| panic!("invalid resolver argument type :{:?}", arg));
+
     Argument {
         name: arg.arg_name.clone(),
         typ: convert_type_to_value(typ),

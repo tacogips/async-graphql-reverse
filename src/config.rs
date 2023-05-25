@@ -51,6 +51,13 @@ pub struct ResolverSetting {
 }
 
 #[derive(Deserialize, Debug, Clone)]
+pub struct FieldSetting {
+    pub target_type: String,
+    pub target_field: String,
+    pub replace_field_type: Option<String>,
+}
+
+#[derive(Deserialize, Debug, Clone)]
 pub struct Additional {
     pub body: String,
 }
@@ -93,7 +100,13 @@ pub struct DefaultSetting {
     pub enum_rename_items: Option<String>,
 }
 
-pub type FieldsResolverSetting<'a> = HashMap<String, &'a ResolverSetting>;
+pub type DefinedEnumName = String;
+pub type DefinedTypeName = String;
+pub type DefinedFieldName = String;
+
+pub type FieldsResolverSetting<'a> = HashMap<DefinedFieldName, &'a ResolverSetting>;
+pub type FieldsSetting<'a> = HashMap<DefinedFieldName, &'a FieldSetting>;
+
 #[derive(Deserialize, Default, Debug)]
 pub struct RendererConfig {
     pub using: Option<HashMap<String, String>>,
@@ -106,6 +119,7 @@ pub struct RendererConfig {
     pub additional: Option<Vec<Additional>>,
     pub ignore: Option<Ignore>,
     pub r#enum: Option<Vec<EnumSetting>>,
+    pub field: Option<Vec<FieldSetting>>,
 }
 
 impl RendererConfig {
@@ -127,25 +141,25 @@ impl RendererConfig {
     }
 
     /// if a type contained this set, the field that has the type supposed to be a member instead of resolver method.
-    pub fn custom_member_types(&self) -> HashSet<String> {
+    pub fn custom_member_types(&self) -> HashSet<DefinedTypeName> {
         match self.custom_member_types.as_ref() {
-            None => HashSet::<String>::new(),
+            None => HashSet::<DefinedTypeName>::new(),
             Some(member_types) => member_types.iter().map(|v| v.to_string()).collect(),
         }
     }
 
-    pub fn resolver_setting(&self) -> HashMap<String, FieldsResolverSetting> {
+    pub fn resolver_setting(&self) -> HashMap<DefinedTypeName, FieldsResolverSetting> {
         match self.resolver.as_ref() {
             None => return HashMap::new(),
             Some(resolver) => {
                 if resolver.is_empty() {
                     return HashMap::new();
                 } else {
-                    let mut result = HashMap::<String, HashMap<String, &ResolverSetting>>::new();
+                    let mut result = HashMap::<DefinedTypeName, FieldsResolverSetting>::new();
                     for each_resolver in resolver.iter() {
                         let field_and_resolver_type = result
                             .entry(each_resolver.target_type.to_string())
-                            .or_insert(HashMap::<String, &ResolverSetting>::new());
+                            .or_insert(FieldsResolverSetting::new());
                         field_and_resolver_type
                             .insert(each_resolver.target_field.to_string(), each_resolver);
                     }
@@ -155,7 +169,29 @@ impl RendererConfig {
         }
     }
 
-    pub fn enum_settings(&self) -> HashMap<String, EnumSetting> {
+    pub fn field_setting(&self) -> HashMap<DefinedTypeName, FieldsSetting> {
+        match self.field.as_ref() {
+            None => return HashMap::new(),
+            Some(resolver) => {
+                if resolver.is_empty() {
+                    return HashMap::new();
+                } else {
+                    let mut result = HashMap::<DefinedTypeName, FieldsSetting>::new();
+                    for each_field in resolver.iter() {
+                        let field_and_resolver_type = result
+                            .entry(each_field.target_type.to_string())
+                            .or_insert(FieldsSetting::new());
+
+                        field_and_resolver_type
+                            .insert(each_field.target_field.to_string(), each_field);
+                    }
+                    result
+                }
+            }
+        }
+    }
+
+    pub fn enum_settings(&self) -> HashMap<DefinedEnumName, EnumSetting> {
         match self.r#enum.as_ref() {
             None => HashMap::new(),
             Some(enum_settings) => {
@@ -165,20 +201,20 @@ impl RendererConfig {
                     enum_settings
                         .into_iter()
                         .map(|each_enum| (each_enum.target_enum.to_string(), each_enum.clone()))
-                        .collect::<HashMap<String, EnumSetting>>()
+                        .collect::<HashMap<DefinedEnumName, EnumSetting>>()
                 }
             }
         }
     }
 
-    pub fn hidden_fields(&self) -> HashMap<String, HiddenFields> {
+    pub fn hidden_fields(&self) -> HashMap<DefinedTypeName, HiddenFields> {
         match self.hidden_field.as_ref() {
             None => return HashMap::new(),
             Some(hidden_field) => {
                 if hidden_field.is_empty() {
                     return HashMap::new();
                 } else {
-                    let mut result = HashMap::<String, HiddenFields>::new();
+                    let mut result = HashMap::<DefinedTypeName, HiddenFields>::new();
                     for each_hidden_field in hidden_field.iter() {
                         let hidden_field = result
                             .entry(each_hidden_field.target_type.to_string())
@@ -199,14 +235,14 @@ impl RendererConfig {
         }
     }
 
-    pub fn additional_resolvers(&self) -> HashMap<String, CustomResolvers> {
+    pub fn additional_resolvers(&self) -> HashMap<DefinedTypeName, CustomResolvers> {
         match self.additional_resolver.as_ref() {
             None => return HashMap::new(),
             Some(additional_resolver) => {
                 if additional_resolver.is_empty() {
                     return HashMap::new();
                 } else {
-                    let mut result = HashMap::<String, CustomResolvers>::new();
+                    let mut result = HashMap::<DefinedTypeName, CustomResolvers>::new();
                     for custom_resolver in additional_resolver.iter() {
                         let custom_resolvers = result
                             .entry(custom_resolver.target_type.to_string())

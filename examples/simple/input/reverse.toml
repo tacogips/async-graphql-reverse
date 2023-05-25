@@ -77,3 +77,9 @@ field_def = "this_is_another_hidden_field: i64"
 [ignore]
 object = ["WillBeIgnoredType"]
 enum = ["IgnoreStatus"]
+
+
+[[field]]
+target_type = "CreateFriendMutationInput"
+target_field = "large_data"
+replace_field_type = "Upload!"

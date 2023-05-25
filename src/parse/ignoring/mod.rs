@@ -59,7 +59,7 @@ macro_rules! accumulate_remove_target {
         {
             Err(e) => {
                 println!(
-                    "WARN: ignore element not found. {:?}, error {}",
+                    "WARN: ignore unknown element. {:?}, error {}",
                     $each_field.typ, e
                 );
             }
