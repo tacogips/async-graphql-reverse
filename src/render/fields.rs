@@ -6,10 +6,11 @@ use super::keywords::*;
 use super::sorter::sort_by_line_pos_and_name;
 use super::tokens::*;
 use super::typ::*;
+use super::utils::SnakeCaseWithUnderscores;
 use super::RenderContext;
 use crate::config::*;
 use anyhow::Result;
-use heck::SnakeCase;
+
 use proc_macro2::{Ident, TokenStream};
 use quote::*;
 use std::collections::{HashMap, HashSet};
@@ -283,7 +284,7 @@ pub fn args_defs_and_values(
             .arguments
             .iter()
             .map(|arg| {
-                let arg = format_ident!("{}", arg.name_string().to_snake_case());
+                let arg = format_ident!("{}", arg.name_string().to_snake_case_with_underscores());
                 quote! {#arg}
             })
             .collect();
@@ -313,7 +314,8 @@ fn resolver_with_datasource(
     let field_name = field_or_member_name(field);
     let resolver_method_name = format_ident!(
         "{}",
-        format!("{}_{}", context.parent_name(), field.name_string()).to_snake_case()
+        format!("{}_{}", context.parent_name(), field.name_string())
+            .to_snake_case_with_underscores()
     );
 
     let attribute = match get_attribute_from_resolver_settings(&field.name, resolver_settings) {
@@ -360,7 +362,7 @@ fn resolver_with_datasource(
 }
 
 fn field_or_member_name(field: &parse::Field) -> Ident {
-    let field_name: String = field.name_string().to_snake_case().into();
+    let field_name: String = field.name_string().to_snake_case_with_underscores().into();
     if RUST_KEYWORDS.contains(&field_name.as_ref()) {
         format_ident!("r#{}", field_name)
     } else {

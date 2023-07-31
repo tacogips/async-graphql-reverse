@@ -3,9 +3,9 @@ use super::dependencies::*;
 use super::keywords::*;
 use super::sorter::sort_by_line_pos_and_name;
 use super::typ::*;
+use super::utils::SnakeCaseWithUnderscores;
 use super::RenderContext;
 use anyhow::Result;
-use heck::SnakeCase;
 use proc_macro2::{Ident, TokenStream};
 use quote::*;
 //use syn::*;
@@ -66,7 +66,7 @@ fn convert_input_field(
 }
 
 fn input_field_name(field: &parse::InputField) -> Ident {
-    let field_name: String = field.name_string().to_snake_case().into();
+    let field_name: String = field.name_string().to_snake_case_with_underscores().into();
     if RUST_KEYWORDS.contains(&field_name.as_ref()) {
         format_ident!("r#{}", field_name)
     } else {

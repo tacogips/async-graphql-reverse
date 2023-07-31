@@ -16,6 +16,7 @@ mod sorter;
 mod tokens;
 mod typ;
 mod unions;
+mod utils;
 
 use super::parse;
 use super::parse::*;
