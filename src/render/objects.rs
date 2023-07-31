@@ -72,20 +72,20 @@ pub fn write_objects(
         .expect(format!("failed to open file : {}", file_path_str).as_ref());
     let mut dest_file = BufWriter::new(dest_file);
 
-    let datasource_using: TokenStream = format!("{};", render_config.data_source_using())
-        .parse()
+    let header = format!("{}", render_config.header)
+        .parse::<TokenStream>()
         .unwrap();
 
+    let header = quote! { #header };
+
     dest_file.write(FILE_HEADER_COMMENT.as_bytes())?;
-    let header = quote! {
-        use async_graphql::*;
-        #datasource_using
-    };
-
     dest_file.write(header.to_string().as_bytes())?;
-    let dependencies_token = dependency_strs_to_token(all_dependencies);
 
-    dest_file.write(dependencies_token.to_string().as_bytes())?;
+    if !render_config.no_dependency_imports {
+        let dependencies_token = dependency_strs_to_token(all_dependencies);
+        dest_file.write(dependencies_token.to_string().as_bytes())?;
+    }
+
     for each_obj_def in object_defs {
         dest_file.write(each_obj_def.as_bytes())?;
     }
@@ -163,19 +163,33 @@ fn object_token(
         dependencies.append(&mut usings);
     }
 
+    let additional_attributes = match &render_config.additional_attributes {
+        Some(attributes) => format!("{},", attributes).parse::<TokenStream>().unwrap(),
+        None => TokenStream::new(),
+    };
+
     let members = separate_by_comma(members);
     let methods = separate_by_space(methods);
+
+    let methods = match render_config.no_object_impl {
+        true => quote! {},
+        false => quote! {
+            #[Object]
+            impl #object_name {
+                #methods
+            }
+        },
+    };
+
     let object_def = quote! {
         #comment
-        #[derive(Debug, Clone)]
+
+        #[derive(#additional_attributes Debug, Clone)]
         pub struct #object_name{
             #members
         }
 
-        #[Object]
-        impl #object_name {
-            #methods
-        }
+        #methods
 
     };
     Ok((object_def, dependencies))

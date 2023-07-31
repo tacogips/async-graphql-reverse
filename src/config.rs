@@ -95,11 +95,6 @@ impl Ignore {
     }
 }
 
-#[derive(Deserialize, Debug)]
-pub struct DefaultSetting {
-    pub enum_rename_items: Option<String>,
-}
-
 pub type DefinedEnumName = String;
 pub type DefinedTypeName = String;
 pub type DefinedFieldName = String;
@@ -107,11 +102,22 @@ pub type DefinedFieldName = String;
 pub type FieldsResolverSetting<'a> = HashMap<DefinedFieldName, &'a ResolverSetting>;
 pub type FieldsSetting<'a> = HashMap<DefinedFieldName, &'a FieldSetting>;
 
+#[derive(Deserialize, Debug, PartialEq)]
+#[serde(rename_all = "snake_case")]
+pub enum Phase {
+    Objects,
+    InputObjects,
+    Unions,
+    Scalars,
+    Interfaces,
+    Enums,
+}
+
 #[derive(Deserialize, Default, Debug)]
 pub struct RendererConfig {
     pub using: Option<HashMap<String, String>>,
-    pub default_setting: Option<DefaultSetting>,
-    pub default_data_source_fetch_method: Option<String>,
+    #[serde(default = "RendererConfig::default_data_source_fetch_method_from_ctx")]
+    pub data_source_fetch_method: String,
     pub custom_member_types: Option<Vec<String>>,
     pub resolver: Option<Vec<ResolverSetting>>,
     pub additional_resolver: Option<Vec<AdditionalResolver>>,
@@ -120,24 +126,42 @@ pub struct RendererConfig {
     pub ignore: Option<Ignore>,
     pub r#enum: Option<Vec<EnumSetting>>,
     pub field: Option<Vec<FieldSetting>>,
+    pub enum_rename_items: Option<String>,
+
+    /// With this you can override the header included at the top of the file.
+    #[serde(default = "RendererConfig::default_header")]
+    pub header: String,
+
+    /// Rather than determining the resolver type based on the type of the field in the
+    /// object, we will use this type instead. Overrides specified in
+    /// additional_resolver override this setting.
+    pub resolver_type: Option<String>,
+
+    /// Additional attributes to apply to the generated object types.
+    pub additional_attributes: Option<String>,
+
+    /// By default all generation phases are executed. If set, only the specified phases
+    /// will be executed.
+    #[serde(default)]
+    pub phases: Vec<Phase>,
+
+    /// If set, the Object implementation will not be generated for objects.
+    #[serde(default)]
+    pub no_object_impl: bool,
+
+    /// If set, dependencies of objects will not be imported. This might be useful if
+    /// you have the Scalars phase disabled because you are using your own scalar types.
+    #[serde(default)]
+    pub no_dependency_imports: bool,
 }
 
 impl RendererConfig {
-    pub fn data_source_using(&self) -> String {
-        match self.using.as_ref() {
-            Some(using) => using
-                .get("data_source")
-                .map(|v| v.to_string())
-                .unwrap_or_else(|| "use crate::datasource::DataSource".to_string()),
-            None => "use crate::datasource::DataSource".to_string(),
-        }
+    fn default_header() -> String {
+        "use async_graphql::*; use crate::datasource::DataSource;".to_string()
     }
 
-    pub fn data_source_fetch_method_from_ctx(&self) -> String {
-        match self.default_data_source_fetch_method.as_ref() {
-            Some(v) => v.to_string(),
-            None => "ctx.data_unchecked::<DataSource>()".to_string(),
-        }
+    fn default_data_source_fetch_method_from_ctx() -> String {
+        "ctx.data_unchecked::<DataSource>()".to_string()
     }
 
     /// if a type contained this set, the field that has the type supposed to be a member instead of resolver method.

@@ -20,7 +20,7 @@ mod utils;
 
 use super::parse;
 use super::parse::*;
-use crate::config::RendererConfig;
+use crate::config::{Phase, RendererConfig};
 use anyhow::{anyhow, Result};
 use comment::*;
 use files::{fmt_file, pathbuf_to_str};
@@ -73,13 +73,49 @@ pub fn output_schema(
 ) -> Result<()> {
     setup_output_dir(output_dir)?;
 
-    let objects_written = objects::write_objects(output_dir, &structured_schema, &config)?;
+    let objects_written = if config.phases.is_empty() || config.phases.contains(&Phase::Objects) {
+        objects::write_objects(output_dir, &structured_schema, &config)?;
+        true
+    } else {
+        false
+    };
 
-    let input_objects_written = input_objects::write_input_objects(output_dir, &structured_schema)?;
-    let union_written = unions::write_unions(output_dir, &structured_schema)?;
-    let scalar_written = scalars::write_scalars(output_dir, &structured_schema)?;
-    let interface_written = interfaces::write_interfaces(output_dir, &structured_schema, &config)?;
-    let enum_written = enums::write_enums(output_dir, &structured_schema, &config)?;
+    let input_objects_written =
+        if config.phases.is_empty() || config.phases.contains(&Phase::InputObjects) {
+            input_objects::write_input_objects(output_dir, &structured_schema)?;
+            true
+        } else {
+            false
+        };
+
+    let union_written = if config.phases.is_empty() || config.phases.contains(&Phase::Unions) {
+        unions::write_unions(output_dir, &structured_schema)?;
+        true
+    } else {
+        false
+    };
+
+    let scalar_written = if config.phases.is_empty() || config.phases.contains(&Phase::Scalars) {
+        scalars::write_scalars(output_dir, &structured_schema)?;
+        true
+    } else {
+        false
+    };
+
+    let interface_written =
+        if config.phases.is_empty() || config.phases.contains(&Phase::Interfaces) {
+            interfaces::write_interfaces(output_dir, &structured_schema, &config)?;
+            true
+        } else {
+            false
+        };
+
+    let enum_written = if config.phases.is_empty() || config.phases.contains(&Phase::Enums) {
+        enums::write_enums(output_dir, &structured_schema, &config)?;
+        true
+    } else {
+        false
+    };
 
     let log = ModInfo {
         objects_written,
@@ -112,6 +148,7 @@ fn schema_mod_file(output_dir: &str, info: ModInfo, schema: &StructuredSchema) -
 
     dest_file.write(SUPPRESS_LINT.as_bytes())?;
     dest_file.write(FILE_HEADER_COMMENT.as_bytes())?;
+
     if info.objects_written {
         dest_file.write(
             quote! { mod objects; pub use objects::*; }
