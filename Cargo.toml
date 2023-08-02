@@ -14,8 +14,8 @@ path = "src/bin/main.rs"
 
 [dependencies]
 anyhow = "1.0"
-async-graphql = "4.0"
-async-graphql-parser = "4.0"
+async-graphql = "6.0.1"
+async-graphql-parser = "6.0.1"
 clap = { version = "3.1.0", features = ["derive"] }
 env_logger = "0.8"
 # TODO(tacogips) lazy_static would be deprecated after rust 1.70
