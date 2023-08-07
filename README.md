@@ -207,6 +207,17 @@ async fn graphql_playground() -> impl IntoResponse {
 
 ```
 
+#### Just types
+To just generate types, you can use a config like this:
+```
+header = "use serde::{Deserialize, Serialize};use aptos_move_graphql_scalars::*;"
+resolver_type = "field"
+additional_attributes = "Deserialize, Serialize"
+no_object_impl = true
+no_dependency_imports = true
+phases = ["objects"]
+```
+
 ## Supported Features
 
 - [x] Object

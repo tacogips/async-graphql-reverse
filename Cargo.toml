@@ -1,6 +1,6 @@
 [package]
 name = "async-graphql-reverse"
-version = "0.5.0"
+version = "0.6.0"
 authors = ["tacogips <me@tacogips.me>"]
 edition = "2018"
 
@@ -14,8 +14,8 @@ path = "src/bin/main.rs"
 
 [dependencies]
 anyhow = "1.0"
-async-graphql = "4.0"
-async-graphql-parser = "4.0"
+async-graphql = "6.0.1"
+async-graphql-parser = "6.0.1"
 clap = { version = "3.1.0", features = ["derive"] }
 env_logger = "0.8"
 # TODO(tacogips) lazy_static would be deprecated after rust 1.70
@@ -35,6 +35,6 @@ serde = { version = "1.0", features = ["derive"] }
 
 
 [dev-dependencies]
-axum = { version = "0.5.1", features = ["headers"] }
+axum = { version = "0.6.0", features = ["headers"] }
 tokio = { version = "1.8", features = ["macros", "rt-multi-thread"] }
-async-graphql-axum = "4.0.10"
+async-graphql-axum = "6.0.1"

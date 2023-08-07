@@ -3,10 +3,10 @@ use super::fields::*;
 use super::fields::{field_is_method_or_member, ResolverType};
 use super::sorter::sort_by_line_pos_and_name;
 use super::typ::*;
+use super::utils::SnakeCaseWithUnderscores;
 use super::RenderContext;
 use crate::config::RendererConfig;
 use anyhow::Result;
-use heck::SnakeCase;
 use proc_macro2::TokenStream;
 use quote::*;
 
@@ -55,8 +55,8 @@ fn datasouerce_token_method(
 ) -> Result<TokenStream> {
     let parent_name = format_ident!("{}", context.parent_name());
 
-    let resolver_name =
-        format!("{}_{}", context.parent_name(), field.name_string()).to_snake_case();
+    let resolver_name = format!("{}_{}", context.parent_name(), field.name_string())
+        .to_snake_case_with_underscores();
     let resolver_method_name = format_ident!("{}", resolver_name);
 
     let typ = value_type_def_token(&field.typ, &schema, &context)?;

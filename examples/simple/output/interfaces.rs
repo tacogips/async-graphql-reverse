@@ -6,9 +6,9 @@ use super::objects::Me;
 use async_graphql::*;
 #[derive(Interface)]
 #[graphql(
-    field(name = "id", type = "ID"),
-    field(name = "user_type", type = "Option<UserType>"),
-    field(name = "is_active", type = "bool")
+    field(name = "id", ty = "ID"),
+    field(name = "user_type", ty = "Option<UserType>"),
+    field(name = "is_active", ty = "bool")
 )]
 #[derive(Debug, Clone)]
 pub enum User {

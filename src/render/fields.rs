@@ -6,10 +6,11 @@ use super::keywords::*;
 use super::sorter::sort_by_line_pos_and_name;
 use super::tokens::*;
 use super::typ::*;
+use super::utils::SnakeCaseWithUnderscores;
 use super::RenderContext;
 use crate::config::*;
 use anyhow::Result;
-use heck::SnakeCase;
+
 use proc_macro2::{Ident, TokenStream};
 use quote::*;
 use std::collections::{HashMap, HashSet};
@@ -108,15 +109,21 @@ pub fn field_is_method_or_member(
     field: &parse::Field,
     schema: &StructuredSchema,
     render_context: &RenderContext,
-    _renderer_config: &RendererConfig,
+    renderer_config: &RendererConfig,
     resolver_settings: &Option<&HashMap<String, &ResolverSetting>>,
     custom_member_types: &HashSet<String>,
 ) -> Result<ResolverType> {
+    // First check for specific overrides.
     if let Some(field_resolver) = resolver_settings {
         if let Some(resolver_type) = resolver_type_in_resolver_setting(&field.name, &field_resolver)
         {
             return Ok(resolver_type);
         }
+    }
+
+    // Now check if there is a default setting.
+    if let Some(resolver_type) = get_default_resolver_type(&renderer_config) {
+        return Ok(resolver_type);
     }
 
     if let parse::TypeDef::Object(object) = render_context.parent {
@@ -151,6 +158,13 @@ fn resolver_type_in_resolver_setting(
         Some(ResolverSetting { resolver_type, .. }) => resolver_type
             .as_ref()
             .map(|typ| ResolverType::from_str(typ).unwrap()),
+        None => None,
+    }
+}
+
+fn get_default_resolver_type(renderer_config: &RendererConfig) -> Option<ResolverType> {
+    match &renderer_config.resolver_type {
+        Some(resolver_type) => Some(ResolverType::from_str(resolver_type).unwrap()),
         None => None,
     }
 }
@@ -210,9 +224,19 @@ fn resolver_with_member(
     context: &RenderContext,
     resolver_settings: &Option<&HashMap<String, &ResolverSetting>>,
 ) -> Result<MemberAndMethod> {
-    let name = field_or_member_name(field);
+    let (name, old_name) = field_or_member_name(field);
     let typ = value_type_def_token(&field.typ, &schema, &context)?;
-    let member = Some(quote! { pub #name :#typ });
+
+    // Handle field names that cannot use `r#`, such as `self`.
+    let field_attribute = match old_name {
+        Some(old_name) => {
+            let attr = format!("#[serde(rename = \"{}\")]", old_name);
+            attr.parse::<TokenStream>().unwrap()
+        }
+        None => quote! {},
+    };
+
+    let member = Some(quote! { #field_attribute pub #name :#typ });
 
     let attribute = match get_attribute_from_resolver_settings(&field.name, resolver_settings) {
         Some(attribute) => {
@@ -283,7 +307,7 @@ pub fn args_defs_and_values(
             .arguments
             .iter()
             .map(|arg| {
-                let arg = format_ident!("{}", arg.name_string().to_snake_case());
+                let arg = format_ident!("{}", arg.name_string().to_snake_case_with_underscores());
                 quote! {#arg}
             })
             .collect();
@@ -310,10 +334,11 @@ fn resolver_with_datasource(
 ) -> Result<MemberAndMethod> {
     let (arg_defs, arg_values) = args_defs_and_values(&field, &schema, "", &context)?;
 
-    let field_name = field_or_member_name(field);
+    let (field_name, _old_name) = field_or_member_name(field);
     let resolver_method_name = format_ident!(
         "{}",
-        format!("{}_{}", context.parent_name(), field.name_string()).to_snake_case()
+        format!("{}_{}", context.parent_name(), field.name_string())
+            .to_snake_case_with_underscores()
     );
 
     let attribute = match get_attribute_from_resolver_settings(&field.name, resolver_settings) {
@@ -333,10 +358,8 @@ fn resolver_with_datasource(
 
     let typ = value_type_def_token(&field.typ, &schema, &context)?;
     let typ: TokenStream = quote! {Result<#typ>};
-    let data_source_fetch_method: TokenStream = renderer_config
-        .data_source_fetch_method_from_ctx()
-        .parse()
-        .unwrap();
+    let data_source_fetch_method: TokenStream =
+        renderer_config.data_source_fetch_method.parse().unwrap();
     let method = quote! {
         #field_rustdoc
         #attribute
@@ -359,11 +382,14 @@ fn resolver_with_datasource(
     })
 }
 
-fn field_or_member_name(field: &parse::Field) -> Ident {
-    let field_name: String = field.name_string().to_snake_case().into();
-    if RUST_KEYWORDS.contains(&field_name.as_ref()) {
-        format_ident!("r#{}", field_name)
+/// Returns Some for the second element if the field was renamed. Otherwise, returns None.
+fn field_or_member_name(field: &parse::Field) -> (Ident, Option<String>) {
+    let field_name: String = field.name_string().to_snake_case_with_underscores().into();
+    if field_name.to_lowercase() == "self" {
+        (format_ident!("{}_", field_name), Some(field_name))
+    } else if RUST_KEYWORDS.contains(&field_name.as_ref()) {
+        (format_ident!("r#{}", field_name), None)
     } else {
-        format_ident!("{}", field_name)
+        (format_ident!("{}", field_name), None)
     }
 }

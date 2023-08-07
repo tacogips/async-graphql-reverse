@@ -5,10 +5,11 @@ use super::files::{fmt_file, pathbuf_to_str};
 use super::sorter::sort_by_line_pos_and_name;
 use super::tokens::*;
 use super::typ::*;
+use super::utils::SnakeCaseWithUnderscores;
 use super::RenderContext;
 use crate::config::RendererConfig;
 use anyhow::Result;
-use heck::{CamelCase, SnakeCase};
+use heck::CamelCase;
 use proc_macro2::TokenStream;
 use quote::*;
 use std::collections::HashMap;
@@ -106,7 +107,7 @@ fn interface_token(
     };
 
     for interface_field in interface.fields.iter() {
-        let field_name = &interface_field.name.to_snake_case();
+        let field_name = &interface_field.name.to_snake_case_with_underscores();
         let field_type = value_type_def_token(&interface_field.typ, &schema, &render_context)?
             .to_string()
             .replace(" ", "");
