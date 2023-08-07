@@ -3,7 +3,7 @@ use clap::{Parser, Subcommand};
 use env_logger;
 
 #[derive(Parser)]
-#[clap(version = "0.4.0", author = "tacogips")]
+#[clap(version = "0.6.0", author = "tacogips")]
 struct Opts {
     #[clap(long, short)]
     input_schema: String,
