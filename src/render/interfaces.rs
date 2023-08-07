@@ -112,7 +112,7 @@ fn interface_token(
             .to_string()
             .replace(" ", "");
 
-        let field_token = quote! {field(name = #field_name, type = #field_type )};
+        let field_token = quote! {field(name = #field_name, ty = #field_type )};
         interface_field_tokens.push(field_token);
 
         let mut dependencies = dependency(&interface_field.typ, schema, &context)?;

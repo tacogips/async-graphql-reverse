@@ -1,13 +1,10 @@
 default_data_source_fetch_method = "ctx.data_unchecked::<DataSource>()"
+enum_rename_items = "camelCase"
 
 # custom_member_types=["CustomPrimitiveType"]
 
 [using]
 data_source = "use crate::datasource::DataSource"
-
-[default_setting]
-enum_rename_items = "camelCase"
-
 
 [[enum]]
 target_enum = "UserType"
