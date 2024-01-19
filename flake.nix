@@ -69,11 +69,13 @@
       checks = {
         inherit root-crate; #crate-clippy;
       };
-      packages. default = root-crate;
+      packages.default = root-crate;
 
       apps.default = flake-utils.lib.mkApp {
         drv = root-crate;
       };
+
+      formatter = pkgs.nixpkgs-fmt;
 
       # --- dev shell ---
       devShells.default = crane-lib.devShell
