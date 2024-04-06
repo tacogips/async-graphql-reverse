@@ -2,7 +2,7 @@
 name = "async-graphql-reverse"
 version = "0.6.0"
 authors = ["tacogips <me@tacogips.me>"]
-edition = "2018"
+edition = "2021"
 
 
 # TODO(tacogips) is excluding apparantly not working when cargo test?
