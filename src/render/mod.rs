@@ -21,6 +21,7 @@ mod utils;
 use super::parse;
 use super::parse::*;
 use crate::config::{Phase, RendererConfig};
+use crate::parse::TypeDef::{Enum, InputObject, Interface, Object, Union};
 use anyhow::{anyhow, Result};
 use comment::*;
 use files::{fmt_file, pathbuf_to_str};
@@ -36,12 +37,14 @@ pub struct RenderContext<'a> {
 
 impl<'a> RenderContext<'a> {
     pub fn parent_name(&self) -> String {
-        match self.parent {
-            parse::TypeDef::Object(obj) => format!("{}", obj.name_string()),
-            parse::TypeDef::Enum(obj) => format!("{}", obj.name_string()),
-            parse::TypeDef::InputObject(obj) => format!("{}", obj.name_string()),
-            parse::TypeDef::Union(obj) => format!("{}", obj.name_string()),
-            parse::TypeDef::Interface(obj) => format!("{}", obj.name_string()),
+        match &self.parent {
+            obj @ Object(_)
+            | obj @ Enum(_)
+            | obj @ InputObject(_)
+            | obj @ Union(_)
+            | obj @ Interface(_) => {
+                format!("{}", obj.name_string())
+            }
             _ => panic!("invalid parent : {:?}", self.parent),
         }
     }
