@@ -2,7 +2,7 @@
 name = "async-graphql-reverse"
 version = "0.6.0"
 authors = ["tacogips <me@tacogips.me>"]
-edition = "2018"
+edition = "2021"
 
 
 # TODO(tacogips) is excluding apparantly not working when cargo test?
@@ -14,27 +14,27 @@ path = "src/bin/main.rs"
 
 [dependencies]
 anyhow = "1.0"
-async-graphql = "6.0.1"
-async-graphql-parser = "6.0.1"
-clap = { version = "3.1.0", features = ["derive"] }
-env_logger = "0.8"
+async-graphql = "7.0.3"
+async-graphql-parser = "7.0.3"
+clap = { version = "4.5.4", features = ["derive"] }
+env_logger = "0.11"
 # TODO(tacogips) lazy_static would be deprecated after rust 1.70
 # https://github.com/rust-lang-nursery/lazy-static.rs/issues/214
 lazy_static = "1.4"
 log = "0.4"
 structopt = "0.3"
-strum = { version = "0.21.0", features = ["derive"] }
+strum = { version = "0.26.2", features = ["derive"] }
 derive_macro_tool = { path = "derive_macro" }
 proc-macro2 = { version = "1.0", default-features = false }
 quote = "1.0"
-syn = { version = "1.0", features = ["extra-traits", "clone-impls"] }
-heck = "0.3"
+syn = { version = "2.0", features = ["extra-traits", "clone-impls"] }
+heck = "0.5"
 paste = "1.0"
-toml = "0.5"
+toml = "0.8"
 serde = { version = "1.0", features = ["derive"] }
 
 
 [dev-dependencies]
-axum = { version = "0.6.0", features = ["headers"] }
-tokio = { version = "1.8", features = ["macros", "rt-multi-thread"] }
-async-graphql-axum = "6.0.1"
+axum = { version = "0.7.5" }
+tokio = { version = "1.37", features = ["macros", "rt-multi-thread"] }
+async-graphql-axum = "7.0.3"

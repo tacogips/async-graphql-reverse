@@ -5,7 +5,7 @@ use super::sorter::sort_by_line_pos_and_name;
 use super::tokens::*;
 use crate::config::{EnumSetting, RendererConfig};
 use anyhow::Result;
-use heck::CamelCase;
+use heck::ToUpperCamelCase;
 use proc_macro2::TokenStream;
 use quote::*;
 use std::collections::HashMap;
@@ -75,14 +75,14 @@ fn enum_token(
     config: &RendererConfig,
     enum_settings: &HashMap<String, EnumSetting>,
 ) -> Result<TokenStream> {
-    let enum_name = format_ident!("{}", enm.name.to_camel_case());
+    let enum_name = format_ident!("{}", enm.name.to_upper_camel_case());
 
     let enums_members: Vec<TokenStream> = enm
         .values
         .iter()
         .map(|each_enum| {
             //each_enum.value_name.parse::<TokenStream>().unwrap()}
-            let each_enum = format_ident!("{}", each_enum.value_name.to_camel_case());
+            let each_enum = format_ident!("{}", each_enum.value_name.to_upper_camel_case());
             quote! {
                 #each_enum
             }
@@ -93,7 +93,7 @@ fn enum_token(
 
     // TODO(tacogips) using there_is_specific_rename_item is naive implementation. make this concise with macro or something
     let mut there_is_specific_rename_item = false;
-    if let Some(specific_enum_setting) = enum_settings.get(&enm.name.to_camel_case()) {
+    if let Some(specific_enum_setting) = enum_settings.get(&enm.name.to_upper_camel_case()) {
         if let Some(specifig_rename_item) = &specific_enum_setting.rename_items {
             there_is_specific_rename_item = true;
             graphql_derive = quote! {
