@@ -19,6 +19,8 @@ pub enum Sex {
 pub enum UserType {
     NotPayed,
     Payed,
+    #[graphql(name = "OTHER")]
+    Other,
 }
 #[derive(Enum, Copy, Clone, Debug, Eq, PartialEq)]
 #[graphql(rename_items = "camelCase")]

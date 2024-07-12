@@ -10,6 +10,11 @@ data_source = "use crate::datasource::DataSource"
 target_enum = "UserType"
 rename_items = "UPPERCASE"
 
+[[enum.value]]
+value = "Other"
+rename = "OTHER"
+
+
 [[resolver]]
 target_type = "Query"
 target_field = "type"

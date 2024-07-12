@@ -3,7 +3,7 @@ use super::comment::*;
 use super::files::{fmt_file, pathbuf_to_str};
 use super::sorter::sort_by_line_pos_and_name;
 use super::tokens::*;
-use crate::config::{EnumSetting, RendererConfig};
+use crate::config::{EnumSetting, EnumValueSetting, RendererConfig};
 use anyhow::Result;
 use heck::CamelCase;
 use proc_macro2::TokenStream;
@@ -75,32 +75,53 @@ fn enum_token(
     config: &RendererConfig,
     enum_settings: &HashMap<String, EnumSetting>,
 ) -> Result<TokenStream> {
-    let enum_name = format_ident!("{}", enm.name.to_camel_case());
+    let enum_name = enm.name.to_camel_case();
+    let mut graphql_derive = quote! {};
+
+    // TODO(tacogips) using there_is_specific_rename_item is naive implementation. make this concise with macro or something
+    let mut there_is_specific_rename_item = false;
+    let mut enum_value_settings = HashMap::<String, &EnumValueSetting>::default();
+    if let Some(specific_enum_setting) = enum_settings.get(&enum_name) {
+        if let Some(specifig_rename_items) = &specific_enum_setting.rename_items {
+            there_is_specific_rename_item = true;
+            graphql_derive = quote! {
+                #[graphql(rename_items = #specifig_rename_items)]
+            }
+        }
+        enum_value_settings = specific_enum_setting
+            .value
+            .iter()
+            .map(|each| (each.value.to_string(), each))
+            .collect();
+    }
 
     let enums_members: Vec<TokenStream> = enm
         .values
         .iter()
-        .map(|each_enum| {
+        .map(|each_enum_value| {
             //each_enum.value_name.parse::<TokenStream>().unwrap()}
-            let each_enum = format_ident!("{}", each_enum.value_name.to_camel_case());
+            let enum_value_name = each_enum_value.value_name.to_camel_case();
+            let each_enum = format_ident!("{}", enum_value_name);
+
+            let enum_attribute = match enum_value_settings.get(&enum_value_name) {
+                Some(each_enum_setting) => match &each_enum_setting.rename {
+                    Some(rename) => {
+                        quote! {
+                            #[graphql(name = #rename)]
+                        }
+                    }
+                    None => quote! {},
+                },
+                None => quote! {},
+            };
+
             quote! {
+                #enum_attribute
                 #each_enum
             }
         })
         .collect();
 
-    let mut graphql_derive = quote! {};
-
-    // TODO(tacogips) using there_is_specific_rename_item is naive implementation. make this concise with macro or something
-    let mut there_is_specific_rename_item = false;
-    if let Some(specific_enum_setting) = enum_settings.get(&enm.name.to_camel_case()) {
-        if let Some(specifig_rename_item) = &specific_enum_setting.rename_items {
-            there_is_specific_rename_item = true;
-            graphql_derive = quote! {
-                #[graphql(rename_items = #specifig_rename_item)]
-            }
-        }
-    }
     if !there_is_specific_rename_item {
         if let Some(enum_rename_items) = config.enum_rename_items.as_ref() {
             graphql_derive = quote! {
@@ -109,6 +130,7 @@ fn enum_token(
         }
     }
 
+    let enum_name = format_ident!("{}", enum_name);
     let enum_members = separate_by_comma(enums_members);
 
     let enum_def = quote! {

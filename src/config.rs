@@ -25,6 +25,13 @@ pub struct HiddenFields {
 pub struct EnumSetting {
     pub target_enum: String,
     pub rename_items: Option<String>,
+    pub value: Vec<EnumValueSetting>,
+}
+
+#[derive(Deserialize, Debug, Clone)]
+pub struct EnumValueSetting {
+    pub value: String,
+    pub rename: Option<String>,
 }
 
 #[derive(Deserialize, Debug)]
@@ -101,6 +108,7 @@ pub type DefinedFieldName = String;
 
 pub type FieldsResolverSetting<'a> = HashMap<DefinedFieldName, &'a ResolverSetting>;
 pub type FieldsSetting<'a> = HashMap<DefinedFieldName, &'a FieldSetting>;
+pub type EnumFieldsSetting<'a> = HashMap<DefinedEnumName, &'a FieldSetting>;
 
 #[derive(Deserialize, Debug, PartialEq)]
 #[serde(rename_all = "snake_case")]
