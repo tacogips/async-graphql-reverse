@@ -88,11 +88,13 @@ fn enum_token(
                 #[graphql(rename_items = #specifig_rename_items)]
             }
         }
-        enum_value_settings = specific_enum_setting
-            .value
-            .iter()
-            .map(|each| (each.value.to_string(), each))
-            .collect();
+
+        if let Some(specific_enum_setting_value) = specific_enum_setting.value.as_ref() {
+            enum_value_settings = specific_enum_setting_value
+                .iter()
+                .map(|each| (each.value.to_string(), each))
+                .collect();
+        }
     }
 
     let enums_members: Vec<TokenStream> = enm

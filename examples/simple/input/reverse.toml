@@ -14,6 +14,9 @@ rename_items = "UPPERCASE"
 value = "Other"
 rename = "OTHER"
 
+[[enum]]
+target_enum = "Sex"
+rename_items = "snake_case"
 
 [[resolver]]
 target_type = "Query"

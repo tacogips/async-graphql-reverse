@@ -8,7 +8,7 @@ pub enum Status {
     EmailVerified,
 }
 #[derive(Enum, Copy, Clone, Debug, Eq, PartialEq)]
-#[graphql(rename_items = "camelCase")]
+#[graphql(rename_items = "snake_case")]
 pub enum Sex {
     Male,
     Female,

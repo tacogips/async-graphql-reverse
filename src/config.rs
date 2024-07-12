@@ -25,7 +25,7 @@ pub struct HiddenFields {
 pub struct EnumSetting {
     pub target_enum: String,
     pub rename_items: Option<String>,
-    pub value: Vec<EnumValueSetting>,
+    pub value: Option<Vec<EnumValueSetting>>,
 }
 
 #[derive(Deserialize, Debug, Clone)]
