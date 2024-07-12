@@ -1,14 +1,17 @@
 use proc_macro2::TokenStream;
 use quote::*;
 
+//TODO(tacogips) rename to  join_with_space
 pub fn separate_by_space(tokens: Vec<TokenStream>) -> TokenStream {
     separate_tokens_by(tokens, " ")
 }
 
+//TODO(tacogips) rename to join_with_comma
 pub fn separate_by_comma(tokens: Vec<TokenStream>) -> TokenStream {
     separate_tokens_by(tokens, ",")
 }
 
+//TODO(tacogips) rename to join_tokens_with
 fn separate_tokens_by(mut tokens: Vec<TokenStream>, by: &'static str) -> TokenStream {
     if tokens.is_empty() {
         quote! {}

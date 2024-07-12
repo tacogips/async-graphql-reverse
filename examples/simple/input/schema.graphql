@@ -79,6 +79,7 @@ enum Sex {
 enum UserType {
   NotPayed
   Payed
+  Other
 }
 
 interface User {
