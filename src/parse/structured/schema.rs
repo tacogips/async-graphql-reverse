@@ -268,6 +268,13 @@ pub enum TypeDef<'a> {
     Interface(&'a Interface),
     AsyncGraphqlPreserved(String),
 }
+
+impl<'a> NameString for TypeDef<'a> {
+    fn name_string(&self) -> String {
+        self.name()
+    }
+}
+
 impl<'a> TypeDef<'a> {
     is! {Primitive}
     is! {Object}

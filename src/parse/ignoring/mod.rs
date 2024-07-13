@@ -26,7 +26,7 @@ macro_rules! is_ignore_type {
       $input_object_names_set:ident,
       $scalar_names_set:ident,
       $union_names_set:ident,
-      $inerface_names_set:ident) => {
+      $interface_names_set:ident) => {
         match $typ {
             TypeDef::Object(Object { name, .. }) => $object_names_set.contains(&name),
             TypeDef::Enum(Enum { name, .. }) => $enum_names_set.contains(&name),
@@ -35,7 +35,7 @@ macro_rules! is_ignore_type {
             }
             TypeDef::Scalar(Scalar { name, .. }) => $scalar_names_set.contains(&name),
             TypeDef::Union(Union { name, .. }) => $union_names_set.contains(&name),
-            TypeDef::Interface(Interface { name, .. }) => $inerface_names_set.contains(&name),
+            TypeDef::Interface(Interface { name, .. }) => $interface_names_set.contains(&name),
             _ => false,
         }
     };
