@@ -1,8 +1,10 @@
 use super::super::parse::{self, *};
 use super::RenderContext;
 use anyhow::Result;
+use lazy_static::lazy_static;
 use proc_macro2::TokenStream;
 use quote::*;
+use regex::Regex;
 
 pub fn value_type_def_token(
     type_def: &parse::ValueTypeDef,
@@ -23,6 +25,7 @@ pub fn value_type_def_token(
         parse::ValueTypeDef::List(list_value) => {
             let nullable = list_value.is_nullable;
             let inner_token = value_type_def_token(&list_value.inner, schema, render_context)?;
+            let inner_token = strip_box(inner_token);
 
             if nullable {
                 quote! { Option<Vec<#inner_token>>}
@@ -98,4 +101,18 @@ fn type_def_token(
         }
     };
     Ok(result)
+}
+
+fn strip_box(input: TokenStream) -> TokenStream {
+    if let Some(captures) = BOX_REGEX.captures(&input.to_string()) {
+        if let Some(group) = captures.get(1) {
+            return group.as_str().parse().unwrap();
+        }
+    }
+
+    input
+}
+
+lazy_static! {
+    static ref BOX_REGEX: Regex = Regex::new(r#"^Box < (.*) >$"#).unwrap();
 }
