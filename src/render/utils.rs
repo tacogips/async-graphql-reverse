@@ -1,4 +1,4 @@
-use heck::SnakeCase;
+use heck::ToSnakeCase;
 
 pub trait SnakeCaseWithUnderscores: ToOwned {
     /// Convert this type to snake case without trimming leading / trailing underscores

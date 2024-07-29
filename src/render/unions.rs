@@ -6,7 +6,7 @@ use super::sorter::sort_by_line_pos_and_name;
 use super::tokens::*;
 use super::RenderContext;
 use anyhow::Result;
-use heck::CamelCase;
+use heck::ToUpperCamelCase;
 use proc_macro2::TokenStream;
 use quote::*;
 use std::collections::HashSet;
@@ -145,7 +145,7 @@ fn convert_union_member(
     render_context: &RenderContext,
 ) -> Result<UnionMember> {
     let member_type_name = format_ident!("{}", member);
-    let member_enum_name = format_ident!("{}", member.to_camel_case());
+    let member_enum_name = format_ident!("{}", member.to_upper_camel_case());
 
     //TODO(tacogips) this conversion of union member type to ValueTypeDef might be a bit hack-y?
     let member_type = ValueTypeDef::Named(NamedValue {

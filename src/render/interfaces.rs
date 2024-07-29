@@ -9,7 +9,7 @@ use super::utils::SnakeCaseWithUnderscores;
 use super::RenderContext;
 use crate::config::RendererConfig;
 use anyhow::Result;
-use heck::CamelCase;
+use heck::ToUpperCamelCase;
 use proc_macro2::TokenStream;
 use quote::*;
 use std::collections::HashMap;
@@ -170,7 +170,7 @@ fn convert_interface_member(
     render_context: &RenderContext,
 ) -> Result<InterfaceMember> {
     let member_type_name = format_ident!("{}", member);
-    let member_enum_name = format_ident!("{}", member.to_camel_case());
+    let member_enum_name = format_ident!("{}", member.to_upper_camel_case());
 
     //TODO(tacogips) this conversion of interface member type to ValueTypeDef might be a bit hack-y?
     let member_type = ValueTypeDef::Named(NamedValue {
