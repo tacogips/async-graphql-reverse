@@ -74,45 +74,39 @@ pub fn output_schema(
     setup_output_dir(output_dir)?;
 
     let objects_written = if config.phases.is_empty() || config.phases.contains(&Phase::Objects) {
-        objects::write_objects(output_dir, &structured_schema, &config)?;
-        true
+        objects::write_objects(output_dir, &structured_schema, &config)?
     } else {
         false
     };
 
     let input_objects_written =
         if config.phases.is_empty() || config.phases.contains(&Phase::InputObjects) {
-            input_objects::write_input_objects(output_dir, &structured_schema)?;
-            true
+            input_objects::write_input_objects(output_dir, &structured_schema)?
         } else {
             false
         };
 
     let union_written = if config.phases.is_empty() || config.phases.contains(&Phase::Unions) {
-        unions::write_unions(output_dir, &structured_schema)?;
-        true
+        unions::write_unions(output_dir, &structured_schema)?
     } else {
         false
     };
 
     let scalar_written = if config.phases.is_empty() || config.phases.contains(&Phase::Scalars) {
-        scalars::write_scalars(output_dir, &structured_schema)?;
-        true
+        scalars::write_scalars(output_dir, &structured_schema)?
     } else {
         false
     };
 
     let interface_written =
         if config.phases.is_empty() || config.phases.contains(&Phase::Interfaces) {
-            interfaces::write_interfaces(output_dir, &structured_schema, &config)?;
-            true
+            interfaces::write_interfaces(output_dir, &structured_schema, &config)?
         } else {
             false
         };
 
     let enum_written = if config.phases.is_empty() || config.phases.contains(&Phase::Enums) {
-        enums::write_enums(output_dir, &structured_schema, &config)?;
-        true
+        enums::write_enums(output_dir, &structured_schema, &config)?
     } else {
         false
     };

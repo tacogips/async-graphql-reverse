@@ -5,7 +5,7 @@ use super::sorter::sort_by_line_pos_and_name;
 use super::tokens::*;
 use crate::config::{EnumSetting, EnumValueSetting, RendererConfig};
 use anyhow::Result;
-use heck::CamelCase;
+use heck::ToUpperCamelCase;
 use proc_macro2::TokenStream;
 use quote::*;
 use std::collections::HashMap;
@@ -75,7 +75,7 @@ fn enum_token(
     config: &RendererConfig,
     enum_settings: &HashMap<String, EnumSetting>,
 ) -> Result<TokenStream> {
-    let enum_name = enm.name.to_camel_case();
+    let enum_name = enm.name.to_upper_camel_case();
     let mut graphql_derive = quote! {};
 
     // TODO(tacogips) using there_is_specific_rename_item is naive implementation. make this concise with macro or something
@@ -102,7 +102,7 @@ fn enum_token(
         .iter()
         .map(|each_enum_value| {
             //each_enum.value_name.parse::<TokenStream>().unwrap()}
-            let enum_value_name = each_enum_value.value_name.to_camel_case();
+            let enum_value_name = each_enum_value.value_name.to_upper_camel_case();
             let each_enum = format_ident!("{}", enum_value_name);
 
             let enum_attribute = match enum_value_settings.get(&enum_value_name) {

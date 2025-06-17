@@ -121,7 +121,7 @@ pub enum Phase {
     Enums,
 }
 
-#[derive(Deserialize, Default, Debug)]
+#[derive(Deserialize, Debug)]
 pub struct RendererConfig {
     pub using: Option<HashMap<String, String>>,
     #[serde(default = "RendererConfig::default_data_source_fetch_method_from_ctx")]
@@ -297,5 +297,29 @@ impl RendererConfig {
         let toml_str: String = fs::read_to_string(file_path)?;
         let config: RendererConfig = toml::from_str(&toml_str).map_err(|e| anyhow!("{}", e))?;
         Ok(config)
+    }
+}
+
+impl Default for RendererConfig {
+    fn default() -> Self {
+        Self {
+            using: None,
+            data_source_fetch_method: RendererConfig::default_data_source_fetch_method_from_ctx(),
+            custom_member_types: None,
+            resolver: None,
+            additional_resolver: None,
+            hidden_field: None,
+            additional: None,
+            ignore: None,
+            r#enum: None,
+            field: None,
+            enum_rename_items: None,
+            header: RendererConfig::default_header(),
+            resolver_type: None,
+            additional_attributes: None,
+            phases: vec![],
+            no_object_impl: false,
+            no_dependency_imports: false,
+        }
     }
 }
