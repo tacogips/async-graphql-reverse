@@ -3,7 +3,7 @@
 
   inputs =
     {
-      nixpkgs.url = "github:tacogips/nixpkgs-security/4a5495d1c0a7c62200b55deeeecb64f03b093056";
+      nixpkgs.url = "github:tacogips/nixpkgs-security/d2a93d2fe7820d90eaa10af53891412ec3614f56";
       flake-utils.url = "github:numtide/flake-utils";
       fenix =
         {
