@@ -3,7 +3,7 @@
 
   inputs =
     {
-      nixpkgs.url = "github:NixOS/nixpkgs/release-24.05";
+      nixpkgs.url = "github:tacogips/nixpkgs-security/4a5495d1c0a7c62200b55deeeecb64f03b093056";
       flake-utils.url = "github:numtide/flake-utils";
       fenix =
         {
@@ -11,7 +11,7 @@
           inputs.nixpkgs.follows = "nixpkgs";
         };
       crane = {
-        url = "github:ipetkov/crane";
+        url = "github:ipetkov/crane/v0.24.0";
         inputs.nixpkgs.follows = "nixpkgs";
       };
     };
@@ -35,7 +35,7 @@
           sha256 = "sha256-ks0nMEGGXKrHnfv4Fku+vhQ7gx76ruv6Ij4fKZR3l78=";
         };
 
-      crane-lib = crane.lib.${system}.overrideToolchain rust-components;
+      crane-lib = (crane.mkLib pkgs).overrideToolchain rust-components;
       rust-src = crane-lib.cleanCargoSource (crane-lib.path ./.);
 
       crane-build-args = {
@@ -83,7 +83,7 @@
           packages = with pkgs;
             [
               nixpkgs-fmt
-              taplo-cli
+              taplo
               cargo-make
               rust-analyzer
               cachix
