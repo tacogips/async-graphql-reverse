@@ -1,3 +1,7 @@
+use crate::parse::TypeDef::{
+    AsyncGraphqlPreserved, Enum, InputObject, Interface, Object, Primitive, Scalar, Union,
+};
+
 use super::super::parse::{self, *};
 use super::RenderContext;
 use anyhow::Result;
@@ -40,60 +44,30 @@ fn type_def_token(
 ) -> Result<TokenStream> {
     //TODO() impl
     let result = match type_def {
-        parse::TypeDef::Primitive(primitive) => {
-            let name = format_ident!("{}", primitive.rust_type());
+        Primitive(obj) => {
+            let name = format_ident!("{}", obj.rust_type());
             quote! { #name }
         }
-        parse::TypeDef::Object(object) => {
-            let recursive = if let parse::TypeDef::InputObject(parent) = render_context.parent {
-                parent.name == object.name
+        obj @ Object(_) | obj @ InputObject(_) => {
+            let recursive = if let InputObject(parent) = render_context.parent {
+                parent.name == obj.name()
             } else {
                 false
             };
 
             let name: TokenStream = if recursive {
-                format!("Box<{}>", object.name_string()).parse().unwrap()
+                format!("Box<{}>", obj.name_string()).parse().unwrap()
             } else {
-                format!("{}", object.name_string()).parse().unwrap()
-            };
-
-            quote! { #name }
-        }
-        parse::TypeDef::Enum(enum_kind) => {
-            let name = format_ident!("{}", enum_kind.name_string());
-            quote! { #name }
-        }
-        parse::TypeDef::InputObject(input_object) => {
-            let recursive = if let parse::TypeDef::InputObject(parent) = render_context.parent {
-                parent.name == input_object.name
-            } else {
-                false
-            };
-
-            let name: TokenStream = if recursive {
-                format!("Box<{}>", input_object.name_string())
-                    .parse()
-                    .unwrap()
-            } else {
-                format!("{}", input_object.name_string()).parse().unwrap()
+                format!("{}", obj.name_string()).parse().unwrap()
             };
             quote! { #name }
         }
-        parse::TypeDef::Scalar(scalar) => {
-            let name = format_ident!("{}", scalar.name_string());
+        obj @ Enum(_) | obj @ Scalar(_) | obj @ Union(_) | obj @ Interface(_) => {
+            let name = format_ident!("{}", obj.name_string());
             quote! { #name }
         }
-        parse::TypeDef::Union(union) => {
-            let name = format_ident!("{}", union.name_string());
-            quote! { #name }
-        }
-        parse::TypeDef::Interface(interface) => {
-            let name = format_ident!("{}", interface.name_string());
-            quote! { #name }
-        }
-
-        parse::TypeDef::AsyncGraphqlPreserved(type_name) => {
-            let name = format_ident!("{}", type_name);
+        AsyncGraphqlPreserved(obj) => {
+            let name = format_ident!("{}", obj);
             quote! { #name }
         }
     };
