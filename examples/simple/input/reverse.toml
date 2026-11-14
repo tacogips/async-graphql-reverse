@@ -1,0 +1,82 @@
+default_data_source_fetch_method = "ctx.data_unchecked::<DataSource>()"
+enum_rename_items = "camelCase"
+
+# custom_member_types=["CustomPrimitiveType"]
+
+[using]
+data_source = "use crate::datasource::DataSource"
+
+[[enum]]
+target_enum = "UserType"
+rename_items = "UPPERCASE"
+
+[[resolver]]
+target_type = "Query"
+target_field = "type"
+resolver_type = "method" ## "method" or "field"
+
+[[resolver]]
+target_type = "Friend"
+target_field = "name"
+resolver_type = "method"
+
+[[resolver]]
+target_type = "Me"
+target_field = "searchSecond"
+resolver_type = "field"
+attribute = """#[cfg(feature="searchSecond")]"""
+
+[[resolver]]
+target_type = "Me"
+target_field = "friends"
+
+[[resolver.argument]]
+arg_name = "limit"
+arg_type = "Int"
+
+[[resolver.argument]]
+arg_name = "sortDirection"
+arg_type = "SortDirection"
+
+[[resolver.argument]]
+arg_name = "nextToken"
+arg_type = "String"
+
+[[additional_resolver]]
+target_type = "Query"
+body = """
+    pub async fn custom_resolver(&self, ctx: &Context<'_>) -> Result<Option<String>> {
+        ctx.data_unchecked::<DataSource>()
+            .query_custom_resolver(ctx, self)
+            .await
+    }
+"""
+#using = "use std::fs"
+
+[[additional]]
+body = """
+enum SortDirection {
+  ASC
+  DESC
+}
+"""
+
+
+[[hidden_field]]
+target_type = "Friend"
+field_def = "this_is_a_hidden_field: String"
+
+[[hidden_field]]
+target_type = "Friend"
+field_def = "this_is_another_hidden_field: i64"
+
+
+[ignore]
+object = ["WillBeIgnoredType"]
+enum = ["IgnoreStatus"]
+
+
+[[field]]
+target_type = "CreateFriendMutationInput"
+target_field = "large_data"
+replace_field_type = "Upload!"
